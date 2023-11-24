@@ -4,6 +4,8 @@ WORKDIR=$(shell pwd)
 PROJNAME=au.com.darkside.xdemo
 LIBNAME=au.com.darkside.xserver
 
+# PLATFORM=$(if $(PLATFORM),arm) # Possible platform: intel, arm, mips (?)
+
 # Version Info
 VER_CODE=31
 VER_NAME=1.31

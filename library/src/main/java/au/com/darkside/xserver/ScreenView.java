@@ -614,6 +614,11 @@ public class ScreenView extends View {
         }
     }
 
+    protected Handler resizeDelayer = new Handler();
+    protected boolean waitingForResize = false;
+    protected int widthBeforeResize;
+    protected int heightBeforeResize;
+
     /**
      * Called when the view needs drawing.
      *
@@ -655,6 +660,29 @@ public class ScreenView extends View {
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
 
+        if (!_xServer.isStarted()) {
+                        onRealSizeChanged(width, height, oldWidth, oldHeight);
+                        return;
+                    }
+            
+                    if (!waitingForResize) {
+                        widthBeforeResize = oldWidth;
+                        heightBeforeResize = oldHeight;
+                    }
+                    waitingForResize = true;
+                    resizeDelayer.removeCallbacksAndMessages(null);
+                    resizeDelayer.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            waitingForResize = false;
+                            if (width != widthBeforeResize || height != heightBeforeResize) {
+                                onRealSizeChanged(width, height, widthBeforeResize, heightBeforeResize);
+                            }
+                        }
+                    }, 500); // threshold in ms
+                }
+            
+    protected void onRealSizeChanged(int width, int height, int oldWidth, int oldHeight){
         _rootWindow = new Window(_rootId, _xServer, null, this, null, 0, 0, width, height, 0, false, true);
         _sharedClipboardWindow = new Window(_xServer.nextFreeResourceId()+1, _xServer, null, this, _rootWindow, -1, -1, 1, 1, 0, true, false); // hidden window managing android <-> xServer clipboard
         _sharedClipboardWindow.setIsServerWindow(true); // flag as functional server only window (there is a urgent need to introduce interfaces..)

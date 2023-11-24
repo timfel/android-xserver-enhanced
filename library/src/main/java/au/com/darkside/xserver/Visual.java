@@ -21,14 +21,16 @@ public class Visual {
     public final static byte DirectColor = 5;
 
     private final int _id;
+    private final int _depth;
 
     /**
      * Constructor.
      *
      * @param id The visual ID.
      */
-    public Visual(int id) {
+    public Visual(int id, int depth) {
         _id = id;
+        _depth = depth;
     }
 
     /**
@@ -64,8 +66,8 @@ public class Visual {
      *
      * @return The depth of the visual, in bits.
      */
-    public byte getDepth() {
-        return 32;
+    public int getDepth() {
+        return _depth;
     }
 
     /**

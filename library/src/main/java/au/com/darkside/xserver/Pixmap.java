@@ -127,7 +127,7 @@ public class Pixmap extends Resource {
         InputOutput io = client.getInputOutput();
 
         synchronized (io) {
-            Util.writeReplyHeader(client, (byte) 32);
+            Util.writeReplyHeader(client, (byte) client._xServer.getRootVisual().getDepth());
             io.writeInt(0);    // Reply length.
             io.writeInt(_screen.getRootWindow().getId());    // Root window.
             io.writeShort((short) 0);    // X.

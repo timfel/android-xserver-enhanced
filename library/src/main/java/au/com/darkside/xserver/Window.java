@@ -2535,7 +2535,7 @@ public class Window extends Resource {
                     ErrorCode.write(client, ErrorCode.Length, opcode, 0);
                 } else {
                     int rid = _screen.getRootWindow().getId();
-                    byte depth = _xServer.getRootVisual().getDepth();
+                    int depth = _xServer.getRootVisual().getDepth();
                     int x, y;
                     int width = _irect.right - _irect.left;
                     int height = _irect.bottom - _irect.top;
@@ -2549,7 +2549,7 @@ public class Window extends Resource {
                     }
 
                     synchronized (io) {
-                        Util.writeReplyHeader(client, depth);
+                        Util.writeReplyHeader(client, (byte) depth);
                         io.writeInt(0);    // Reply length.
                         io.writeInt(rid);    // Root.
                         io.writeShort((short) x);    // X.

@@ -16,7 +16,7 @@ public class Client extends Thread {
     public static final int RetainPermanent = 1;
     public static final int RetainTemporary = 2;
 
-    private final XServer _xServer;
+    public final XServer _xServer;
     private final Socket _socket;
     private final InputOutput _inputOutput;
     private final int _resourceIdBase;

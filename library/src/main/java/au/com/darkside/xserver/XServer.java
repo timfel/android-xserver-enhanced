@@ -123,7 +123,7 @@ public class XServer {
         cmap.setInstalled(true);
         addResource(cmap);
 
-        _rootVisual = new Visual(1);
+        _rootVisual = new Visual(1, 32);
         Atom.registerPredefinedAtoms(this);
 
         _timestamp = System.currentTimeMillis();
@@ -132,6 +132,11 @@ public class XServer {
     public void setOnStartListener(OnXSeverStartListener l){
         _onStartListener = l;
     }
+
+     
+    public boolean isStarted(){
+            return _acceptThread != null;
+        }
 
     /**
      * Start the thread that listens on the socket.

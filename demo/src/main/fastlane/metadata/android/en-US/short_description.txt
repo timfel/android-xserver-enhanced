@@ -1,1 +1,0 @@
-light-weight Android X11 X-Server

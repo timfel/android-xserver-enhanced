@@ -37,8 +37,8 @@ public class XServer {
 
     public final short ProtocolMajorVersion = 11;
     public final short ProtocolMinorVersion = 0;
-    public final String vendor = "Open source";
-    public final int ReleaseNumber = 0;
+    public final String vendor = "android-xserver";
+    public final int ReleaseNumber = 131;
 
     private final int _port;
     private final Context _context;
@@ -108,6 +108,11 @@ public class XServer {
         _extensions.put("XTEST", new Extension(Extensions.XTEST, (byte) 0, (byte) 0));
 
         _formats.add(new Format((byte) 32, (byte) 24, (byte) 8));
+        _formats.add(new Format((byte) 24, (byte) 24, (byte) 8));
+        /*
+        _formats.add(new Format((byte) 16, (byte) 16, (byte) 8));
+        _formats.add(new Format((byte) 8, (byte) 8, (byte) 8));
+        */
 
         _keyboard = new Keyboard();
         _pointer = new Pointer();

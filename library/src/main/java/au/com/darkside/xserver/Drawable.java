@@ -867,6 +867,13 @@ public class Drawable {
 
                 planeBit >>= 1;
             }
+        } else if (depth == 24) {    // 24-bit ZPixmap.
+            for (int i = 0; i < colors.length; i++) {
+                int b = io.readByte();
+                int g = io.readByte();
+                int r = io.readByte();
+                colors[i] = (r << 16) | (g << 8) | b;
+            }
         } else if (depth == 32) {    // 32-bit ZPixmap.
             boolean useShapeMask = (_shapeMask != null && colors.length == _shapeMask.length);
 

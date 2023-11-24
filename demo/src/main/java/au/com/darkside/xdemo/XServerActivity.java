@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.DisplayMetrics;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -140,8 +141,15 @@ public class XServerActivity extends Activity {
 
         setAccessControl();
         FrameLayout fl = (FrameLayout) findViewById(R.id.frame);
-
+        /*
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int desiredHeight = displayMetrics.heightPixels;
+        int desiredWidth = displayMetrics.widthPixels;
+        */
         _screenView = _xServer.getScreen();
+        // FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(desiredWidth, desiredHeight);
+        // _screenView.setLayoutParams(params);
         fl.addView(_screenView);
 
         PowerManager pm;
@@ -229,7 +237,9 @@ public class XServerActivity extends Activity {
      */
     @Override
     public void onDestroy() {
-        _xServer.stop();
+        //_xServer.stop();
+        Toast toast = Toast.makeText(getApplicationContext(), "Destroy was called!", Toast.LENGTH_SHORT);
+    toast.show();
         super.onDestroy();
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

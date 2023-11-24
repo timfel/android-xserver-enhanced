@@ -16,6 +16,7 @@ import au.com.darkside.xserver.Xext.XKeyboard;
  */
 public class Extensions {
     // What these bytes are fucking means?
+    // xdpyinfo -queryExt | grep opcode
     public static final byte XGE = -128;
     public static final byte XTEST = -124;
     public static final byte Sync = -127;
@@ -80,8 +81,8 @@ public class Extensions {
                 XTest.processRequest(xServer, client, opcode, arg, bytesRemaining);
                 break;
             case XKEYBOARD:
-                XKeyboard.processRequest(xServer, client, opcode, arg, bytesRemaining);
-                break;
+            //    XKeyboard.processRequest(xServer, client, opcode, arg, bytesRemaining);
+            //    break;
             case Sync:
             //    XSync.processRequest(xServer, client, opcode, arg, bytesRemaining);
             //    break;

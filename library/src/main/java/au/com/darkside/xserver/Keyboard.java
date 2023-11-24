@@ -51,6 +51,14 @@ public class Keyboard {
     private static final int AttrKey = 6;
     private static final int AttrAutoRepeatMode = 7;
 
+    // Add XKB constants.
+    public static final int XkbUseCoreKbd = 0x100;
+
+    // Add XKB fields.
+    private int[] _xkbKeySyms = null;
+    private int _xkbMinKeycode = 0;
+    private int _xkbMaxKeycode = 0;
+
     /**
      * Constructor.
      */
@@ -164,6 +172,22 @@ public class Keyboard {
     public int translateToXKeycode(int keycode) {
         if (_minimumKeycode < 8) return keycode + 8 - _minimumKeycode;
         else return keycode;
+    }
+
+    public void updateXkbKeymap(int keycode, int keysym) {
+        if (_xkbKeySyms == null) {
+            _xkbMaxKeycode = _xkbMinKeycode = keycode;
+            _xkbKeySyms = new int[1];
+        } else if (keycode < _xkbMinKeycode || keycode > _xkbMaxKeycode) {
+            int newMin = Math.min(keycode, _xkbMinKeycode);
+            int newMax = Math.max(keycode, _xkbMaxKeycode);
+            int[] newKeySyms = new int[newMax - newMin + 1];
+            System.arraycopy(_xkbKeySyms, _xkbMinKeycode - newMin, newKeySyms, 0, _xkbKeySyms.length);
+            _xkbMinKeycode = newMin;
+            _xkbMaxKeycode = newMax;
+            _xkbKeySyms = newKeySyms;
+        }
+        _xkbKeySyms[keycode - _xkbMinKeycode] = keysym;
     }
 
     /**
@@ -381,6 +405,21 @@ public class Keyboard {
                     io.flush();
                 }
                 break;
+                /*
+            case RequestCode.XkbUseExtension:
+                byte clientMajor = (byte) io.readByte();
+                byte clientMinor = (byte) io.readByte();
+                io.readSkip(bytesRemaining - 2);
+                synchronized (io) {
+                    Util.writeReplyHeader(client, (byte) 1);
+                    io.writeInt(0); // Reply length
+                    io.writeByte((byte) 1); // Our major version
+                    io.writeByte((byte) 0); // Our minor version
+                    io.writePadBytes(22); // Unused
+                }
+                io.flush();
+                break;
+                */
             case RequestCode.GetModifierMapping:
                 if (bytesRemaining != 0) {
                     io.readSkip(bytesRemaining);

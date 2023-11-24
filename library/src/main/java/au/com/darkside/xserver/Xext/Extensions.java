@@ -7,6 +7,7 @@ import au.com.darkside.xserver.ErrorCode;
 import au.com.darkside.xserver.InputOutput;
 import au.com.darkside.xserver.Util;
 import au.com.darkside.xserver.XServer;
+import au.com.darkside.xserver.Xext.XKeyboard;
 
 /**
  * This class handles requests relating to extensions.
@@ -14,11 +15,13 @@ import au.com.darkside.xserver.XServer;
  * @author mkwan
  */
 public class Extensions {
+    // What these bytes are fucking means?
     public static final byte XGE = -128;
     public static final byte XTEST = -124;
     public static final byte Sync = -127;
     public static final byte BigRequests = -126;
     public static final byte Shape = -125;
+    public static final byte XKEYBOARD = -123;
 
     static public void Initialize(){
         XSync.Initialize();
@@ -75,6 +78,9 @@ public class Extensions {
                 break;
             case XTEST:
                 XTest.processRequest(xServer, client, opcode, arg, bytesRemaining);
+                break;
+            case XKEYBOARD:
+                XKeyboard.processRequest(xServer, client, opcode, arg, bytesRemaining);
                 break;
             case Sync:
             //    XSync.processRequest(xServer, client, opcode, arg, bytesRemaining);

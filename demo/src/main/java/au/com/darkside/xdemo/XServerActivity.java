@@ -108,13 +108,15 @@ public class XServerActivity extends Activity {
                 if (p >= 0) {
                     if (p < 10) // Using ports 0-9 is bad juju.
                         port = p + DEFAULT_PORT;
-                    else port = p;
+                    else
+                        port = p;
                 }
             }
         }
 
         _port = port;
-        if (_port != DEFAULT_PORT) _portDescription = PORT_DESC_PRE + _port;
+        if (_port != DEFAULT_PORT)
+            _portDescription = PORT_DESC_PRE + _port;
 
         _xServer = new XServer(this, port, null);
 
@@ -122,10 +124,10 @@ public class XServerActivity extends Activity {
         _xServer.setOnStartListener(new XServer.OnXSeverStartListener() {
             @Override
             public void onStart() {
-                // execute our program 
+                // execute our program
                 try {
                     File file = new File(getApplicationInfo().nativeLibraryDir + "/libbinary.so");
-                    if(file.exists()){
+                    if (file.exists()) {
                         file.setExecutable(true); // make program executable
                         ProcessBuilder pb = new ProcessBuilder(file.getPath());
                         Map<String, String> env = pb.environment();
@@ -171,17 +173,19 @@ public class XServerActivity extends Activity {
             String description = "Default notification channel of XServer demo";
             int importance = 3; // default importance
 
-            try{
+            try {
                 Class nc = Class.forName("android.app.NotificationChannel");
-                Object ncObj = nc.getConstructor(new Class[] {String.class, CharSequence.class, int.class}).newInstance(NOTIFICATION_CHANNEL_DEFAULT, name, importance);
+                Object ncObj = nc.getConstructor(new Class[] { String.class, CharSequence.class, int.class })
+                        .newInstance(NOTIFICATION_CHANNEL_DEFAULT, name, importance);
                 nc.getMethod("setDescription", String.class).invoke(ncObj, description);
-                nc.getMethod("setVibrationPattern", long[].class).invoke(ncObj, new long[]{ 0 }); // enableVibration is bugged, use this as workaround
+                nc.getMethod("setVibrationPattern", long[].class).invoke(ncObj, new long[] { 0 }); // enableVibration is
+                                                                                                   // bugged, use this
+                                                                                                   // as workaround
                 nc.getMethod("enableVibration", boolean.class).invoke(ncObj, true);
                 nc.getMethod("enableLights", boolean.class).invoke(ncObj, false);
                 NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 manager.getClass().getMethod("createNotificationChannel", nc).invoke(manager, ncObj);
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
             }
         }
@@ -204,27 +208,26 @@ public class XServerActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, getIntent(),
+                PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder nb = new Notification.Builder(this)
-            .setSmallIcon(android.R.drawable.ic_menu_view)
-            .setContentTitle("Running!")
-            .setContentText("XServer running in background.")
-            .setContentIntent(pendingIntent)
-            .setOngoing(true);
+                .setSmallIcon(android.R.drawable.ic_menu_view)
+                .setContentTitle("Running!")
+                .setContentText("XServer running in background.")
+                .setContentIntent(pendingIntent)
+                .setOngoing(true);
 
         /*
          * Set notification channel as it required for notifications on Android >= 8
          * Use reflection to stay backward compatible with sdk provided by debian
          */
         if (Build.VERSION.SDK_INT >= 26) {
-            try{
+            try {
                 nb.getClass().getMethod("setChannelId", String.class).invoke(nb, NOTIFICATION_CHANNEL_DEFAULT);
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
             }
         }
-
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(1, nb.build());
@@ -237,9 +240,7 @@ public class XServerActivity extends Activity {
      */
     @Override
     public void onDestroy() {
-        //_xServer.stop();
-        Toast toast = Toast.makeText(getApplicationContext(), "Destroy was called!", Toast.LENGTH_SHORT);
-    toast.show();
+        _xServer.stop();
         super.onDestroy();
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -398,13 +399,14 @@ public class XServerActivity extends Activity {
         String s = _portDescription;
 
         try {
-            for (Enumeration<NetworkInterface> nie = NetworkInterface.getNetworkInterfaces(); nie.hasMoreElements(); ) {
+            for (Enumeration<NetworkInterface> nie = NetworkInterface.getNetworkInterfaces(); nie.hasMoreElements();) {
                 NetworkInterface ni = nie.nextElement();
 
-                for (Enumeration<InetAddress> iae = ni.getInetAddresses(); iae.hasMoreElements(); ) {
+                for (Enumeration<InetAddress> iae = ni.getInetAddresses(); iae.hasMoreElements();) {
                     InetAddress ia = iae.nextElement();
 
-                    if (ia.isLoopbackAddress()) continue;
+                    if (ia.isLoopbackAddress())
+                        continue;
 
                     s += "\n" + ni.getDisplayName() + ": " + ia.getHostAddress();
                 }
@@ -421,14 +423,14 @@ public class XServerActivity extends Activity {
      */
     private Dialog getMenuIpAdressDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("IP address").setMessage(getAddressInfo()).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.cancel();
-            }
-        });
+        builder.setTitle("IP address").setMessage(getAddressInfo()).setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
         return builder.create();
     }
-
 
     /**
      * Load the access control hosts from persistent storage.
@@ -460,7 +462,8 @@ public class XServerActivity extends Activity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ACTIVITY_ACCESS_CONTROL && resultCode == RESULT_OK) setAccessControl();
+        if (requestCode == ACTIVITY_ACCESS_CONTROL && resultCode == RESULT_OK)
+            setAccessControl();
     }
 
     /**
@@ -492,9 +495,12 @@ public class XServerActivity extends Activity {
      * Launch an application that will allow an SSH login.
      */
     private void launchSshApp() {
-        if (launchApp("org.connectbot", "org.connectbot.HostListActivity")) return;
-        if (launchApp("com.madgag.ssh.agent", "com.madgag.ssh.agent.HostListActivity")) return;
-        if (launchApp("sk.vx.connectbot", "sk.vx.connectbot.HostListActivity")) return;
+        if (launchApp("org.connectbot", "org.connectbot.HostListActivity"))
+            return;
+        if (launchApp("com.madgag.ssh.agent", "com.madgag.ssh.agent.HostListActivity"))
+            return;
+        if (launchApp("sk.vx.connectbot", "sk.vx.connectbot.HostListActivity"))
+            return;
 
         Toast.makeText(this, "The ConnectBot application needs to be installed", Toast.LENGTH_LONG).show();
     }
@@ -513,7 +519,7 @@ public class XServerActivity extends Activity {
                     dir.mkdir();
                 for (int i = 0; i < assets.length; ++i) {
                     Log.i(assets[i], "Info");
-                    if(path == "")
+                    if (path == "")
                         copyAssetData(assets[i]);
                     else
                         copyAssetData(path + "/" + assets[i]);

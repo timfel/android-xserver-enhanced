@@ -4,7 +4,6 @@ package au.com.darkside.xserver;
 import android.content.Context;
 import android.widget.Toast;
 
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -17,6 +16,7 @@ import android.view.View;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.view.inputmethod.InputConnection;
 import android.util.DisplayMetrics;
 import android.view.inputmethod.EditorInfo;
@@ -46,6 +46,9 @@ import java.lang.Math;
  * @author Matthew Kwan
  */
 public class ScreenView extends View {
+
+    private boolean isNavBarHidden = false;
+    private boolean isTogglingNavBar = false;
 
     private interface PendingEvent {
         public void run();
@@ -251,26 +254,46 @@ public class ScreenView extends View {
         });
 
         setOnTouchListener(new View.OnTouchListener() {
+            // TODO: do not handle clicks from three finger touches
+            // private Handler mHandler;
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                synchronized (_xServer) {
-                    if (_rootWindow == null) return false;
-        
-                    blank(false);    // Reset the screen saver.
-                    updatePointerPosition((int) event.getX(), (int) event.getY(), 0);
-        
-                    if(_enableTouchClicks){
-                        if(event.getActionMasked() == MotionEvent.ACTION_DOWN && event.getActionIndex() == 0)
-                            updatePointerButtons (1, true);
-                        if(event.getActionMasked() == MotionEvent.ACTION_UP && event.getActionIndex() == 0)
-                            updatePointerButtons (1, false);
-                        if(event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN && event.getActionIndex() == 1)
-                            updatePointerButtons (3, true);
-                        if((event.getActionMasked() == MotionEvent.ACTION_POINTER_UP || event.getActionMasked() == MotionEvent.ACTION_CANCEL)  && event.getActionIndex() == 1)
-                            updatePointerButtons (3, false);
-                    }
+/*                if (mHandler != null) {
+                    mHandler.removeCallbacksAndMessages(null);
                 }
+                mHandler = new Handler();
 
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        */
+                        if(event.getPointerCount() == 3){
+                            // Bewkaaa logic
+                            toggleNavigationBar();
+                            return true;
+                        }
+                        // } else {
+                            // breeee logic
+                            synchronized (_xServer) {
+                                if (_rootWindow == null) return false;
+                    
+                                blank(false);    // Reset the screen saver.
+                                updatePointerPosition((int) event.getX(), (int) event.getY(), 0);
+                    
+                                if(_enableTouchClicks){
+                                    if(event.getActionMasked() == MotionEvent.ACTION_DOWN && event.getActionIndex() == 0)
+                                        updatePointerButtons (1, true);
+                                    if(event.getActionMasked() == MotionEvent.ACTION_UP && event.getActionIndex() == 0)
+                                        updatePointerButtons (1, false);
+                                    if(event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN && event.getActionIndex() == 1)
+                                        updatePointerButtons (3, true);
+                                    if((event.getActionMasked() == MotionEvent.ACTION_POINTER_UP || event.getActionMasked() == MotionEvent.ACTION_CANCEL)  && event.getActionIndex() == 1)
+                                        updatePointerButtons (3, false);
+                                }
+                            }
+                        // }
+        
                 if(event.getActionMasked() == MotionEvent.ACTION_DOWN){
                     _totalMove = 0;
                     _xPrec = event.getX();
@@ -288,12 +311,19 @@ public class ScreenView extends View {
 
                 if(_totalMove < 20){ // -- workaround for phones with cheap touchscreens (which will constantly trigger ACTION_MOVE events)
                     _ignoreLongPress = false;
-                    return false; // make longClick Listeners work!
+                    return false;
+                    // statusCode = false; // make longClick Listeners work!
                 }
 
                 _ignoreLongPress = true;
+                //statusCode = true;
                 return true;
+            /*
+            }}, 15);
+            return statusCode;
+            */
             }
+            
         });
         
         setOnLongClickListener(new View.OnLongClickListener() {
@@ -442,8 +472,50 @@ public class ScreenView extends View {
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_FULLSCREEN;
         return null;
     }
-    
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        int deviceWidth = displayMetrics.widthPixels;
+        int deviceHeight = displayMetrics.heightPixels;
+        initializeXserver(deviceWidth, deviceHeight);
+
+    }
+
+    private void toggleNavigationBar() {
+        if (isTogglingNavBar) {
+            return;
+        }
+    
+        isTogglingNavBar = true;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (!isNavBarHidden) {
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                isNavBarHidden = true;
+            } else {
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+                isNavBarHidden = false;
+            }
+        }
+
+        // Reset the flag after a delay
+    new Handler().postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            isTogglingNavBar = false;
+        }
+    }, 500); // 500ms delay
+    }
+    
     /**
      * Placeholder constructor to prevent a compiler warning.
      *
@@ -457,6 +529,18 @@ public class ScreenView extends View {
         _installedColormaps = null;
         _pixelsPerMillimeter = 0;
     }
+/*
+    @Override
+public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+    int bottomInset = insets.getSystemWindowInsetBottom(); // This is the navigation bar height
+    
+    ViewGroup.LayoutParams layoutParams = getLayoutParams();
+    layoutParams.height = getHeight() - bottomInset;
+    setLayoutParams(layoutParams);
+
+    return insets;
+}
+*/
 
     /**
      * Return the screen's root window.
@@ -662,14 +746,8 @@ public class ScreenView extends View {
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
         if (!_xServer.isStarted()) {
-            Toast toast = Toast.makeText(_xServer.getContext(), "View size changed", Toast.LENGTH_SHORT);
-    toast.show();
             initializeXserver(width, height);
-                        //onRealSizeChanged(width, height, oldWidth, oldHeight);
-                        return;
-  
-        
-    }
+    }}
     
     protected void initializeXserver(int width, int height) {
         
@@ -733,14 +811,6 @@ public class ScreenView extends View {
 
         // Everything set up, so start listening for clients.
         _xServer.start();
-
-        if (!_xServer.isStarted()) {
-            Toast toast = Toast.makeText(_xServer.getContext(), "xServer.isStarted returned false", Toast.LENGTH_SHORT);
-    toast.show();
-            initializeXserver(width, height);
-                        //onRealSizeChanged(width, height, oldWidth, oldHeight);
-                        return;
-                    }
     }
 
     /**

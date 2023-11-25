@@ -40,6 +40,7 @@ public class XServer {
     public final String vendor = "android-xserver";
     public final int ReleaseNumber = 131;
 
+    private final int _default_depth = 24;
     private final int _port;
     private final Context _context;
     private final String _windowManagerClass;
@@ -127,8 +128,8 @@ public class XServer {
 
         cmap.setInstalled(true);
         addResource(cmap);
-
-        _rootVisual = new Visual(1, 32);
+        
+        _rootVisual = new Visual(1, _default_depth);
         Atom.registerPredefinedAtoms(this);
 
         _timestamp = System.currentTimeMillis();

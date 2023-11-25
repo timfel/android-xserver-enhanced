@@ -2,6 +2,9 @@ package au.com.darkside.xserver;
 
 import java.io.IOException;
 
+import java.util.List;
+import java.util.Arrays;
+
 
 /**
  * An X visual. This is always 32-bit TrueColor.
@@ -64,10 +67,19 @@ public class Visual {
      * Return the depth of the visual.
      * Under Android this is always 32.
      *
-     * @return The depth of the visual, in bits.
+     * @return The depth of the visual, in integer.
      */
     public int getDepth() {
         return _depth;
+    }
+
+    /**
+     * Return the supported depths of the visual.
+     *
+     * @return A list of the supported depths.
+     */
+    public List<Integer> getSupportedDepths() {
+        return Arrays.asList(24, 32);
     }
 
     /**

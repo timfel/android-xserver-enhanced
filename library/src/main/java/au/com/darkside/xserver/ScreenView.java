@@ -40,6 +40,8 @@ import java.util.Vector;
 import java.nio.charset.StandardCharsets;
 import java.lang.Math;
 
+import au.com.darkside.xserver.ScaleGestureListenerImpl;
+
 /**
  * This class implements an X Windows screen.
  * <p>
@@ -53,20 +55,23 @@ public class ScreenView extends View {
 
     private boolean isNavBarHidden = false;
     private boolean isTogglingNavBar = false;
+   
+    private ScaleGestureListenerImpl mScaleListener;
 
-    ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(),
-            new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                @Override
-                public boolean onScale(ScaleGestureDetector detector) {
-                    Log.d(LOG_TAG, "ScaleGestureDetector: Gesture was detected");
-                    return true;
-                }
-            });
+    public void setOnScaleGestureListener(ScaleGestureListenerImpl listener) {
+        mScaleListener = listener;
+        mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
+    }
 
     private interface PendingEvent {
         public void run();
     }
 
+    private ScaleGestureDetector mScaleDetector;
+/*
+    private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+    });
+*/
     private interface PendingPointerEvent extends PendingEvent {
     }
 
@@ -310,7 +315,14 @@ public class ScreenView extends View {
                     return false;
                 }
 
-                mScaleDetector.onTouchEvent(event);
+
+
+                if (mScaleListener != null) {
+                    mScaleDetector.onTouchEvent(event);
+        if (mScaleListener.scaleInProgress == true) {
+            return false;
+        }
+    }           
 
                 synchronized (_xServer) {
                     if (_rootWindow == null)

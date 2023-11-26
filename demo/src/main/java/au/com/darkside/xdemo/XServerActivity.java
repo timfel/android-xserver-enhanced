@@ -1,5 +1,7 @@
 package au.com.darkside.xdemo;
 
+import android.view.ScaleGestureDetector;
+import android.view.MotionEvent;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -33,6 +35,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import au.com.darkside.xserver.ScaleGestureListenerImpl;
 import au.com.darkside.xserver.ScreenView;
 import au.com.darkside.xserver.XServer;
 
@@ -61,6 +64,9 @@ public class XServerActivity extends Activity {
     private XServer _xServer;
     private ScreenView _screenView;
     private WakeLock _wakeLock;
+
+    private ScaleGestureListenerImpl scaleGestureDetector;
+
 
     private static final String NOTIFICATION_CHANNEL_DEFAULT = "default";
 
@@ -91,6 +97,7 @@ public class XServerActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.main);
 
         copyAssetData(""); // copy all assets to getApplicationInfo().dataDir directory
@@ -150,6 +157,9 @@ public class XServerActivity extends Activity {
         int desiredWidth = displayMetrics.widthPixels;
         */
         _screenView = _xServer.getScreen();
+
+        _screenView.setOnScaleGestureListener(new ScaleGestureListenerImpl(_screenView));
+        
         // FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(desiredWidth, desiredHeight);
         // _screenView.setLayoutParams(params);
         fl.addView(_screenView);
@@ -190,6 +200,15 @@ public class XServerActivity extends Activity {
             }
         }
     }
+
+    // @Override
+                public boolean onScaler(ScaleGestureDetector detector) {
+                    float scaleFactor = detector.getScaleFactor();
+                    scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
+                    _screenView.setScaleX(scaleFactor);
+                    _screenView.setScaleY(scaleFactor);
+                    return true;
+                }
 
     /**
      * Called when the activity resumes.
@@ -234,7 +253,15 @@ public class XServerActivity extends Activity {
 
         _wakeLock.release();
     }
-
+/*
+    @Override
+public boolean onTouchEvent(MotionEvent event) {
+        Toast.makeText(this, "XServerActivity: onTouchEvent is caught!", Toast.LENGTH_SHORT).show();
+        Log.d("XServerActivity", "onTouchEvent is caught!");
+    scaleGestureDetector.onTouchEvent(event);
+    return true;
+}
+*/
     /**
      * Called when the activity is destroyed.
      */

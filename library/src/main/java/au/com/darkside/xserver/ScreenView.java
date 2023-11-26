@@ -54,13 +54,14 @@ public class ScreenView extends View {
     private boolean isNavBarHidden = false;
     private boolean isTogglingNavBar = false;
 
-    ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            Log.d(LOG_TAG, "ScaleGestureDetector: Gesture was detected");
-            return true;
-        }
-    });
+    ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(),
+            new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                @Override
+                public boolean onScale(ScaleGestureDetector detector) {
+                    Log.d(LOG_TAG, "ScaleGestureDetector: Gesture was detected");
+                    return true;
+                }
+            });
 
     private interface PendingEvent {
         public void run();
@@ -80,7 +81,8 @@ public class ScreenView extends View {
         private Client mGrabPointerClient;
         private boolean mGrabPointerOwnerEvents;
 
-        public PendingGrabButtonNotify(Window w, boolean pressed, int motionX, int motionY, int button, int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
+        public PendingGrabButtonNotify(Window w, boolean pressed, int motionX, int motionY, int button,
+                int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
             mWindow = w;
             mPressed = pressed;
             mMotionX = motionX;
@@ -92,7 +94,8 @@ public class ScreenView extends View {
         }
 
         public void run() {
-            callGrabButtonNotify(mWindow, mPressed, mMotionX, mMotionY, mButton, mGrabEventMask, mGrabPointerClient, mGrabPointerOwnerEvents);
+            callGrabButtonNotify(mWindow, mPressed, mMotionX, mMotionY, mButton, mGrabEventMask, mGrabPointerClient,
+                    mGrabPointerOwnerEvents);
         }
     }
 
@@ -106,7 +109,8 @@ public class ScreenView extends View {
         private Client mGrabPointerClient;
         private boolean mGrabPointerOwnerEvents;
 
-        public PendingGrabMotionNotify(Window w, int x, int y, int buttons, int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
+        public PendingGrabMotionNotify(Window w, int x, int y, int buttons, int grabEventMask, Client grabPointerClient,
+                boolean grabPointerOwnerEvents) {
             mWindow = w;
             mX = x;
             mY = y;
@@ -117,7 +121,8 @@ public class ScreenView extends View {
         }
 
         public void run() {
-            callGrabMotionNotify(mWindow, mX, mY, mButtons, mGrabEventMask, mGrabPointerClient, mGrabPointerOwnerEvents);
+            callGrabMotionNotify(mWindow, mX, mY, mButtons, mGrabEventMask, mGrabPointerClient,
+                    mGrabPointerOwnerEvents);
         }
     }
 
@@ -134,7 +139,8 @@ public class ScreenView extends View {
         private Client mGrabKeyboardClient;
         private boolean mGrabKeyboardOwnerEvents;
 
-        public PendingGrabKeyNotify(Window w, boolean pressed, int motionX, int motionY, int keycode, Client grabKeyboardClient, boolean grabKeyboardOwnerEvents) {
+        public PendingGrabKeyNotify(Window w, boolean pressed, int motionX, int motionY, int keycode,
+                Client grabKeyboardClient, boolean grabKeyboardOwnerEvents) {
             mWindow = w;
             mPressed = pressed;
             mMotionX = motionX;
@@ -145,7 +151,8 @@ public class ScreenView extends View {
         }
 
         public void run() {
-            callGrabKeyNotify(mWindow, mPressed, mMotionX, mMotionY, mKeycode, mGrabKeyboardClient, mGrabKeyboardOwnerEvents);
+            callGrabKeyNotify(mWindow, mPressed, mMotionX, mMotionY, mKeycode, mGrabKeyboardClient,
+                    mGrabKeyboardOwnerEvents);
         }
     }
 
@@ -185,9 +192,9 @@ public class ScreenView extends View {
     private int _motionY;
     private int _buttons = 0;
     private boolean _isBlanked = false;
-	private boolean	_arrowsAsButtons = false;
-    private boolean	_inhibitBackButton = false;
-    private boolean	_enableTouchClicks = true;
+    private boolean _arrowsAsButtons = false;
+    private boolean _inhibitBackButton = false;
+    private boolean _enableTouchClicks = true;
     private boolean _sharedClipboard = true;
     private Paint _paint;
 
@@ -211,7 +218,7 @@ public class ScreenView extends View {
     private PassiveKeyGrab _grabKeyboardPassiveGrab = null;
 
     private Window _focusWindow = null;
-    private byte _focusRevertTo = 0;    // 0=None, 1=Root, 2=Parent.
+    private byte _focusRevertTo = 0; // 0=None, 1=Root, 2=Parent.
     private int _focusLastChangeTime = 0;
 
     private PendingEventQueue<PendingPointerEvent> mPendingPointerEvents;
@@ -229,7 +236,8 @@ public class ScreenView extends View {
     private static final int ACTION_ESC = 7;
     private static final int ACTION_KEYBOARD = 8;
 
-    // -- helpers for movement thresholding, works around phones with cheap touch screens
+    // -- helpers for movement thresholding, works around phones with cheap touch
+    // screens
     private double _totalMove = 0;
     private double _xPrec = 0;
     private double _yPrec = 0;
@@ -273,61 +281,62 @@ public class ScreenView extends View {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                    Log.d(LOG_TAG, "onTouch: event: " + event.toString());
+                Log.d(LOG_TAG, "onTouch: event: " + event.toString());
 
-                    /*
-                    int x = (int) event.getX();
-                    int y = (int) event.getY();
+                /*
+                 * int x = (int) event.getX();
+                 * int y = (int) event.getY();
+                 * 
+                 * // TODO: collibrate screen's average click event process time
+                 * sleepThread(95);
+                 * 
+                 * if (x ==_xPrev && y == _yPrev) {
+                 * Log.d(LOG_TAG, "x and y is the same as old position");
+                 * if(event.getPointerCount() == 3){
+                 * Log.d(LOG_TAG, "onTouch: Three finger touch detected");
+                 * toggleNavigationBar();
+                 * 
+                 * }
+                 * return false;
+                 * }
+                 * 
+                 * _xPrev = x;
+                 * _yPrev = y;
+                 */
 
-                    // TODO: collibrate screen's average click event process time
-                    sleepThread(95);
-
-                    if (x ==_xPrev && y == _yPrev) {
-                        Log.d(LOG_TAG, "x and y is the same as old position");
-                        if(event.getPointerCount() == 3){
-                            Log.d(LOG_TAG, "onTouch: Three finger touch detected");
-                            toggleNavigationBar();
-                            
-                        }
-                        return false;
+                if (event.getPointerCount() == 3) {
+                    Log.d(LOG_TAG, "onTouch: Three finger touch detected");
+                    toggleNavigationBar();
+                    return false;
                 }
 
-                    _xPrev = x;
-                    _yPrev = y;
-                    */
+                mScaleDetector.onTouchEvent(event);
 
-                    if(event.getPointerCount() == 3){
-                            Log.d(LOG_TAG, "onTouch: Three finger touch detected");
-                            toggleNavigationBar();
-                            return false;
-                        }
+                synchronized (_xServer) {
+                    if (_rootWindow == null)
+                        return false;
 
-                        mScaleDetector.onTouchEvent(event);
+                    blank(false); // Reset the screen saver.
+                    updatePointerPosition((int) event.getX(), (int) event.getY(), 0);
 
-                            synchronized (_xServer) {
-                                if (_rootWindow == null) return false;
-                    
-                                blank(false);    // Reset the screen saver.
-                                updatePointerPosition((int) event.getX(), (int) event.getY(), 0);
-                    
-                                if(_enableTouchClicks){
-                                    if(event.getActionMasked() == MotionEvent.ACTION_DOWN && event.getActionIndex() == 0)
-                                        updatePointerButtons (1, true);
-                                    if(event.getActionMasked() == MotionEvent.ACTION_UP && event.getActionIndex() == 0)
-                                        updatePointerButtons (1, false);
-                                    if(event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN && event.getActionIndex() == 1)
-                                        updatePointerButtons (3, true);
-                                    if((event.getActionMasked() == MotionEvent.ACTION_POINTER_UP || event.getActionMasked() == MotionEvent.ACTION_CANCEL)  && event.getActionIndex() == 1)
-                                        updatePointerButtons (3, false);
-                                }
-                            }
-        
-                if(event.getActionMasked() == MotionEvent.ACTION_DOWN){
+                    if (_enableTouchClicks) {
+                        if (event.getActionMasked() == MotionEvent.ACTION_DOWN && event.getActionIndex() == 0)
+                            updatePointerButtons(1, true);
+                        if (event.getActionMasked() == MotionEvent.ACTION_UP && event.getActionIndex() == 0)
+                            updatePointerButtons(1, false);
+                        if (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN && event.getActionIndex() == 1)
+                            updatePointerButtons(3, true);
+                        if ((event.getActionMasked() == MotionEvent.ACTION_POINTER_UP
+                                || event.getActionMasked() == MotionEvent.ACTION_CANCEL) && event.getActionIndex() == 1)
+                            updatePointerButtons(3, false);
+                    }
+                }
+
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     _totalMove = 0;
                     _xPrec = event.getX();
                     _yPrec = event.getY();
-                }
-                else if (event.getActionMasked() == MotionEvent.ACTION_MOVE){
+                } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
                     final double dx = event.getX() - _xPrec;
                     final double dy = event.getY() - _yPrec;
                     final double dl = Math.sqrt(dx * dx + dy * dy);
@@ -336,8 +345,8 @@ public class ScreenView extends View {
                     _yPrec = event.getY();
                 }
 
-
-                if(_totalMove < 20){ // -- workaround for phones with cheap touchscreens (which will constantly trigger ACTION_MOVE events)
+                if (_totalMove < 20) { // -- workaround for phones with cheap touchscreens (which will constantly
+                                       // trigger ACTION_MOVE events)
                     _ignoreLongPress = false;
                     return false; // make longClick Listeners work!
                 }
@@ -345,16 +354,16 @@ public class ScreenView extends View {
                 _ignoreLongPress = true;
                 return true;
             }
-            
+
         });
-        
+
         setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if(_ignoreLongPress)
+                if (_ignoreLongPress)
                     return true;
 
-                ActionMode.Callback cb = new ActionMode.Callback(){
+                ActionMode.Callback cb = new ActionMode.Callback() {
                     @Override
                     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                         menu.add(0, ACTION_CTRL_C, 0, "CTRL+C");
@@ -378,48 +387,62 @@ public class ScreenView extends View {
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                         switch (item.getItemId()) {
                             case ACTION_CTRL_C:
-                                onKeyDown(KeyEvent.KEYCODE_CTRL_LEFT, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
+                                onKeyDown(KeyEvent.KEYCODE_CTRL_LEFT,
+                                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
                                 onKeyDown(KeyEvent.KEYCODE_C, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_C));
                                 onKeyUp(KeyEvent.KEYCODE_C, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_C));
-                                onKeyUp(KeyEvent.KEYCODE_CTRL_LEFT, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
+                                onKeyUp(KeyEvent.KEYCODE_CTRL_LEFT,
+                                        new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
                                 mode.finish();
                                 return true;
                             case ACTION_CTRL_V:
                                 if (_sharedClipboard) {
-                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("CLIPBOARD"), _sharedClipboardWindow); // override owner to point to our clipboardwindow
-                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("PRIMARY"), _sharedClipboardWindow);
-                                    ClipboardManager clipboard = (ClipboardManager) _xServer.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("CLIPBOARD"),
+                                            _sharedClipboardWindow); // override owner to point to our clipboardwindow
+                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("PRIMARY"),
+                                            _sharedClipboardWindow);
+                                    ClipboardManager clipboard = (ClipboardManager) _xServer.getContext()
+                                            .getSystemService(Context.CLIPBOARD_SERVICE);
                                     ClipData.Item clipitem = clipboard.getPrimaryClip().getItemAt(0);
 
                                     _sharedClipboardProperty.setData(clipitem.getText().toString());
                                     _sharedClipboardPrimaryProperty.setData(clipitem.getText().toString());
                                 }
-                            
-                                onKeyDown(KeyEvent.KEYCODE_CTRL_LEFT, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
+
+                                onKeyDown(KeyEvent.KEYCODE_CTRL_LEFT,
+                                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
                                 onKeyDown(KeyEvent.KEYCODE_V, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_V));
                                 onKeyUp(KeyEvent.KEYCODE_V, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_V));
-                                onKeyUp(KeyEvent.KEYCODE_CTRL_LEFT, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
+                                onKeyUp(KeyEvent.KEYCODE_CTRL_LEFT,
+                                        new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
                                 mode.finish();
                                 return true;
                             case ACTION_CTRL_X:
-                                onKeyDown(KeyEvent.KEYCODE_CTRL_LEFT, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
+                                onKeyDown(KeyEvent.KEYCODE_CTRL_LEFT,
+                                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
                                 onKeyDown(KeyEvent.KEYCODE_X, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_X));
                                 onKeyUp(KeyEvent.KEYCODE_X, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_X));
-                                onKeyUp(KeyEvent.KEYCODE_CTRL_LEFT, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
+                                onKeyUp(KeyEvent.KEYCODE_CTRL_LEFT,
+                                        new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
                                 mode.finish();
                                 return true;
                             case ACTION_CTRL_A:
-                                onKeyDown(KeyEvent.KEYCODE_CTRL_LEFT, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
+                                onKeyDown(KeyEvent.KEYCODE_CTRL_LEFT,
+                                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
                                 onKeyDown(KeyEvent.KEYCODE_A, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_A));
                                 onKeyUp(KeyEvent.KEYCODE_A, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_A));
-                                onKeyUp(KeyEvent.KEYCODE_CTRL_LEFT, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
+                                onKeyUp(KeyEvent.KEYCODE_CTRL_LEFT,
+                                        new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
                                 mode.finish();
                                 return true;
                             case ACTION_R_CLICK:
                                 if (_sharedClipboard) {
-                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("CLIPBOARD"), _sharedClipboardWindow); // override owner to point to our clipboardwindow
-                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("PRIMARY"), _sharedClipboardWindow);
-                                    ClipboardManager clipboard = (ClipboardManager) _xServer.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("CLIPBOARD"),
+                                            _sharedClipboardWindow); // override owner to point to our clipboardwindow
+                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("PRIMARY"),
+                                            _sharedClipboardWindow);
+                                    ClipboardManager clipboard = (ClipboardManager) _xServer.getContext()
+                                            .getSystemService(Context.CLIPBOARD_SERVICE);
                                     ClipData.Item clipitem = clipboard.getPrimaryClip().getItemAt(0);
 
                                     _sharedClipboardProperty.setData(clipitem.getText().toString());
@@ -431,9 +454,12 @@ public class ScreenView extends View {
                                 return true;
                             case ACTION_M_CLICK:
                                 if (_sharedClipboard) {
-                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("CLIPBOARD"), _sharedClipboardWindow); // override owner to point to our clipboardwindow
-                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("PRIMARY"), _sharedClipboardWindow);
-                                    ClipboardManager clipboard = (ClipboardManager) _xServer.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("CLIPBOARD"),
+                                            _sharedClipboardWindow); // override owner to point to our clipboardwindow
+                                    Selection.setSelectionOwner(_xServer, _xServer.findAtom("PRIMARY"),
+                                            _sharedClipboardWindow);
+                                    ClipboardManager clipboard = (ClipboardManager) _xServer.getContext()
+                                            .getSystemService(Context.CLIPBOARD_SERVICE);
                                     ClipData.Item clipitem = clipboard.getPrimaryClip().getItemAt(0);
 
                                     _sharedClipboardProperty.setData(clipitem.getText().toString());
@@ -444,12 +470,15 @@ public class ScreenView extends View {
                                 mode.finish();
                                 return true;
                             case ACTION_ESC:
-                                onKeyDown(KeyEvent.KEYCODE_ESCAPE, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE));
-                                onKeyUp(KeyEvent.KEYCODE_ESCAPE, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ESCAPE));
+                                onKeyDown(KeyEvent.KEYCODE_ESCAPE,
+                                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE));
+                                onKeyUp(KeyEvent.KEYCODE_ESCAPE,
+                                        new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ESCAPE));
                                 mode.finish();
                                 return true;
                             case ACTION_KEYBOARD:
-                                InputMethodManager imm = (InputMethodManager) _xServer.getContext().getSystemService(Service.INPUT_METHOD_SERVICE);
+                                InputMethodManager imm = (InputMethodManager) _xServer.getContext()
+                                        .getSystemService(Service.INPUT_METHOD_SERVICE);
                                 requestFocus();
                                 imm.hideSoftInputFromWindow(getWindowToken(), 0);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
@@ -468,14 +497,13 @@ public class ScreenView extends View {
                     @Override
                     public void onDestroyActionMode(ActionMode mode) {
                         mode = null;
-                    } 
+                    }
                 };
 
                 // use floating mode on newer android versions
-                if(Build.VERSION.SDK_INT >= 23){
+                if (Build.VERSION.SDK_INT >= 23) {
                     startActionMode(cb, ActionMode.TYPE_FLOATING);
-                }
-                else{
+                } else {
                     startActionMode(cb);
                 }
 
@@ -489,7 +517,7 @@ public class ScreenView extends View {
      * needed make softkeyboard work in landscape mode and to capture backspace.
      */
     @Override
-    public InputConnection onCreateInputConnection(EditorInfo outAttrs){
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         outAttrs.inputType = InputType.TYPE_TEXT_VARIATION_NORMAL;
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_FULLSCREEN;
         return null;
@@ -511,7 +539,7 @@ public class ScreenView extends View {
         if (isTogglingNavBar) {
             return;
         }
-    
+
         isTogglingNavBar = true;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -530,14 +558,14 @@ public class ScreenView extends View {
         }
 
         // Reset the flag after a delay
-    new Handler().postDelayed(new Runnable() {
-        @Override
-        public void run() {
-            isTogglingNavBar = false;
-        }
-    }, 500); // 500ms delay
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                isTogglingNavBar = false;
+            }
+        }, 500); // 500ms delay
     }
-    
+
     /**
      * Placeholder constructor to prevent a compiler warning.
      *
@@ -551,18 +579,19 @@ public class ScreenView extends View {
         _installedColormaps = null;
         _pixelsPerMillimeter = 0;
     }
-/*
-    @Override
-public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-    int bottomInset = insets.getSystemWindowInsetBottom(); // This is the navigation bar height
-    
-    ViewGroup.LayoutParams layoutParams = getLayoutParams();
-    layoutParams.height = getHeight() - bottomInset;
-    setLayoutParams(layoutParams);
-
-    return insets;
-}
-*/
+    /*
+     * @Override
+     * public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+     * int bottomInset = insets.getSystemWindowInsetBottom(); // This is the
+     * navigation bar height
+     * 
+     * ViewGroup.LayoutParams layoutParams = getLayoutParams();
+     * layoutParams.height = getHeight() - bottomInset;
+     * setLayoutParams(layoutParams);
+     * 
+     * return insets;
+     * }
+     */
 
     /**
      * Return the screen's root window.
@@ -634,12 +663,14 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      * @param flag If true, blank the screen. Otherwise unblank it.
      */
     public void blank(boolean flag) {
-        if (_isBlanked == flag) return;
+        if (_isBlanked == flag)
+            return;
 
         _isBlanked = flag;
         postInvalidate();
 
-        if (!_isBlanked) _xServer.resetScreenSaver();
+        if (!_isBlanked)
+            _xServer.resetScreenSaver();
     }
 
     /**
@@ -649,7 +680,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      */
     public void addInstalledColormap(Colormap cmap) {
         _installedColormaps.add(cmap);
-        if (_defaultColormap == null) _defaultColormap = cmap;
+        if (_defaultColormap == null)
+            _defaultColormap = cmap;
     }
 
     /**
@@ -660,8 +692,10 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
     public void removeInstalledColormap(Colormap cmap) {
         _installedColormaps.remove(cmap);
         if (_defaultColormap == cmap) {
-            if (_installedColormaps.size() == 0) _defaultColormap = null;
-            else _defaultColormap = _installedColormaps.firstElement();
+            if (_installedColormaps.size() == 0)
+                _defaultColormap = null;
+            else
+                _defaultColormap = _installedColormaps.firstElement();
         }
     }
 
@@ -669,10 +703,12 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      * Remove all colormaps except the default one.
      */
     public void removeNonDefaultColormaps() {
-        if (_installedColormaps.size() < 2) return;
+        if (_installedColormaps.size() < 2)
+            return;
 
         _installedColormaps.clear();
-        if (_defaultColormap != null) _installedColormaps.add(_defaultColormap);
+        if (_defaultColormap != null)
+            _installedColormaps.add(_defaultColormap);
     }
 
     /**
@@ -727,7 +763,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                 _focusWindow = _rootWindow;
             } else {
                 _focusWindow = w.getParent();
-                while (!_focusWindow.isViewable()) _focusWindow = _focusWindow.getParent();
+                while (!_focusWindow.isViewable())
+                    _focusWindow = _focusWindow.getParent();
             }
 
             _focusRevertTo = 0;
@@ -755,7 +792,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
 
             _paint.reset();
             _rootWindow.draw(canvas, _paint);
-            canvas.drawBitmap(_currentCursor.getBitmap(), _currentCursorX - _currentCursor.getHotspotX(), _currentCursorY - _currentCursor.getHotspotY(), null);
+            canvas.drawBitmap(_currentCursor.getBitmap(), _currentCursorX - _currentCursor.getHotspotX(),
+                    _currentCursorY - _currentCursor.getHotspotY(), null);
 
             _drawnCursor = _currentCursor;
             _drawnCursorX = _currentCursorX;
@@ -777,35 +815,47 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
         if (!_xServer.isStarted()) {
             initializeXserver(width, height);
-    }}
-    
+        }
+    }
+
     protected void initializeXserver(int width, int height) {
-        
-        /*DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int width = displayMetrics.heightPixels;
-        int height = displayMetrics.widthPixels;
-        */
+
+        /*
+         * DisplayMetrics displayMetrics = new DisplayMetrics();
+         * getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+         * int width = displayMetrics.heightPixels;
+         * int height = displayMetrics.widthPixels;
+         */
 
         _rootWindow = new Window(_rootId, _xServer, null, this, null, 0, 0, width, height, 0, false, true);
-        _sharedClipboardWindow = new Window(_xServer.nextFreeResourceId()+1, _xServer, null, this, _rootWindow, -1, -1, 1, 1, 0, true, false); // hidden window managing android <-> xServer clipboard
-        _sharedClipboardWindow.setIsServerWindow(true); // flag as functional server only window (there is a urgent need to introduce interfaces..)
-        _sharedClipboardProperty = new Property(_xServer.findAtom("CLIPBOARD").getId(), _xServer.findAtom("CLIPBOARD").getId(), (byte)32); // property which will hold the clipboard data
-        _sharedClipboardPrimaryProperty = new Property(_xServer.findAtom("PRIMARY").getId(), _xServer.findAtom("PRIMARY").getId(), (byte)32); // property which will hold the clipboard data
+        _sharedClipboardWindow = new Window(_xServer.nextFreeResourceId() + 1, _xServer, null, this, _rootWindow, -1,
+                -1, 1, 1, 0, true, false); // hidden window managing android <-> xServer clipboard
+        _sharedClipboardWindow.setIsServerWindow(true); // flag as functional server only window (there is a urgent need
+                                                        // to introduce interfaces..)
+        _sharedClipboardProperty = new Property(_xServer.findAtom("CLIPBOARD").getId(),
+                _xServer.findAtom("CLIPBOARD").getId(), (byte) 32); // property which will hold the clipboard data
+        _sharedClipboardPrimaryProperty = new Property(_xServer.findAtom("PRIMARY").getId(),
+                _xServer.findAtom("PRIMARY").getId(), (byte) 32); // property which will hold the clipboard data
 
-        Property.OnPropertyChangedListener cb = new Property.OnPropertyChangedListener(){ // -- executed on a per client thread basis
+        Property.OnPropertyChangedListener cb = new Property.OnPropertyChangedListener() { // -- executed on a per
+                                                                                           // client thread basis
             @Override
-            public void onPropertyChanged(byte[] data, Atom type){
-                switch(type.getName()){
+            public void onPropertyChanged(byte[] data, Atom type) {
+                switch (type.getName()) {
                     case "UTF8_STRING":
                         String s = new String(data, StandardCharsets.UTF_8); // convert to UTF8 string
 
                         // create task for UI thread
                         class OneShotTask implements Runnable {
                             private String d;
-                            OneShotTask(String s) { d = s; }
+
+                            OneShotTask(String s) {
+                                d = s;
+                            }
+
                             public void run() {
-                                ClipboardManager clipboard = (ClipboardManager) _xServer.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                ClipboardManager clipboard = (ClipboardManager) _xServer.getContext()
+                                        .getSystemService(Context.CLIPBOARD_SERVICE);
                                 ClipData clip = ClipData.newPlainText("cb", d);
                                 clipboard.setPrimaryClip(clip); // store to clipboard
                             }
@@ -817,7 +867,6 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                 }
             }
         };
-
 
         // capture data changes on this property
         _sharedClipboardProperty.setOnPropertyChangedListener(cb);
@@ -885,18 +934,26 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         if (_grabConfineWindow != null) {
             Rect rect = _grabConfineWindow.getIRect();
 
-            if (x < rect.left) x = rect.left;
-            else if (x >= rect.right) x = rect.right - 1;
+            if (x < rect.left)
+                x = rect.left;
+            else if (x >= rect.right)
+                x = rect.right - 1;
 
-            if (y < rect.top) y = rect.top;
-            else if (y >= rect.bottom) y = rect.bottom - 1;
+            if (y < rect.top)
+                y = rect.top;
+            else if (y >= rect.bottom)
+                y = rect.bottom - 1;
         }
 
-        if (_grabPointerWindow != null) w = _grabPointerWindow;
-        else w = _rootWindow.windowAtPoint(x, y);
+        if (_grabPointerWindow != null)
+            w = _grabPointerWindow;
+        else
+            w = _rootWindow.windowAtPoint(x, y);
 
-        if (_grabCursor != null) c = _grabCursor;
-        else c = w.getCursor();
+        if (_grabCursor != null)
+            c = _grabCursor;
+        else
+            c = w.getCursor();
 
         if (c != _currentCursor || x != _currentCursorX || y != _currentCursorY)
             movePointer(x, y, c);
@@ -913,7 +970,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                 callGrabMotionNotify(w, x, y, _buttons, _grabEventMask, _grabPointerClient, _grabPointerOwnerEvents);
             } else {
                 PendingPointerEvent e;
-                e = new PendingGrabMotionNotify(w, x, y, _buttons, _grabEventMask, _grabPointerClient, _grabPointerOwnerEvents);
+                e = new PendingGrabMotionNotify(w, x, y, _buttons, _grabEventMask, _grabPointerClient,
+                        _grabPointerOwnerEvents);
                 mPendingPointerEvents.add(e);
             }
 
@@ -941,16 +999,19 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         Pointer p = _xServer.getPointer();
 
         button = p.mapButton(button);
-        if (button == 0) return;
+        if (button == 0)
+            return;
 
         int mask = 0x80 << button;
 
         if (pressed) {
-            if ((_buttons & mask) != 0) return;
+            if ((_buttons & mask) != 0)
+                return;
 
             _buttons |= mask;
         } else {
-            if ((_buttons & mask) == 0) return;
+            if ((_buttons & mask) == 0)
+                return;
 
             _buttons &= ~mask;
         }
@@ -959,7 +1020,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
             Window w = _rootWindow.windowAtPoint(_motionX, _motionY);
             PassiveButtonGrab pbg = null;
 
-            if (pressed) pbg = w.findPassiveButtonGrab(_buttons, null);
+            if (pressed)
+                pbg = w.findPassiveButtonGrab(_buttons, null);
 
             if (pbg != null) {
                 _grabPointerClient = pbg.getGrabClient();
@@ -974,7 +1036,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                 _grabKeyboardSynchronous = pbg.getKeyboardSynchronous();
 
                 _grabCursor = pbg.getCursor();
-                if (_grabCursor == null) _grabCursor = _grabPointerWindow.getCursor();
+                if (_grabCursor == null)
+                    _grabCursor = _grabPointerWindow.getCursor();
 
                 updatePointer(1);
             } else {
@@ -987,7 +1050,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                     Vector<Client> sc;
 
                     sc = ew.getSelectingClients(EventCode.MaskButtonPress);
-                    if (sc != null) c = sc.firstElement();
+                    if (sc != null)
+                        c = sc.firstElement();
                 }
 
                 // Start an automatic key grab.
@@ -1010,10 +1074,12 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
             }
         } else {
             if (!_grabPointerSynchronous) {
-                callGrabButtonNotify(_grabPointerWindow, pressed, _motionX, _motionY, button, _grabEventMask, _grabPointerClient, _grabPointerOwnerEvents);
+                callGrabButtonNotify(_grabPointerWindow, pressed, _motionX, _motionY, button, _grabEventMask,
+                        _grabPointerClient, _grabPointerOwnerEvents);
             } else {
                 PendingPointerEvent e;
-                e = new PendingGrabButtonNotify(_grabPointerWindow, pressed, _motionX, _motionY, button, _grabEventMask, _grabPointerClient, _grabPointerOwnerEvents);
+                e = new PendingGrabButtonNotify(_grabPointerWindow, pressed, _motionX, _motionY, button, _grabEventMask,
+                        _grabPointerClient, _grabPointerOwnerEvents);
                 mPendingPointerEvents.add(e);
             }
 
@@ -1033,8 +1099,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
     private void updateModifiers() {
         int mask = 0;
 
-		Keyboard kb = _xServer.getKeyboard();
-		mask = kb.getState();
+        Keyboard kb = _xServer.getKeyboard();
+        mask = kb.getState();
 
         _buttons = (_buttons & 0xff00) | mask;
     }
@@ -1046,7 +1112,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      * @param pressed True if pressed, false if released.
      */
     public void notifyKeyPressedReleased(int keycode, boolean pressed) {
-        if (_grabKeyboardWindow == null && _focusWindow == null) return;
+        if (_grabKeyboardWindow == null && _focusWindow == null)
+            return;
 
         Keyboard kb = _xServer.getKeyboard();
 
@@ -1076,14 +1143,18 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         if (_grabKeyboardWindow == null) {
             Window w = _rootWindow.windowAtPoint(_motionX, _motionY);
 
-            if (w.isAncestor(_focusWindow)) w.keyNotify(pressed, _motionX, _motionY, keycode, null);
-            else _focusWindow.keyNotify(pressed, _motionX, _motionY, keycode, null);
+            if (w.isAncestor(_focusWindow))
+                w.keyNotify(pressed, _motionX, _motionY, keycode, null);
+            else
+                _focusWindow.keyNotify(pressed, _motionX, _motionY, keycode, null);
             reflectKeyboardFreezeNextEvent();
         } else if (!_grabKeyboardSynchronous) {
-            callGrabKeyNotify(_grabKeyboardWindow, pressed, _motionX, _motionY, keycode, _grabKeyboardClient, _grabKeyboardOwnerEvents);
+            callGrabKeyNotify(_grabKeyboardWindow, pressed, _motionX, _motionY, keycode, _grabKeyboardClient,
+                    _grabKeyboardOwnerEvents);
         } else {
             PendingKeyboardEvent e;
-            e = new PendingGrabKeyNotify(_grabKeyboardWindow, pressed, _motionX, _motionY, keycode, _grabKeyboardClient, _grabKeyboardOwnerEvents);
+            e = new PendingGrabKeyNotify(_grabKeyboardWindow, pressed, _motionX, _motionY, keycode, _grabKeyboardClient,
+                    _grabKeyboardOwnerEvents);
             mPendingKeyboardEvents.add(e);
         }
 
@@ -1110,50 +1181,53 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
     @Override
     public boolean onKeyDown(int keycode, KeyEvent event) {
         synchronized (_xServer) {
-            if (_rootWindow == null) return false;
+            if (_rootWindow == null)
+                return false;
 
-            blank(false);    // Reset the screen saver.
+            blank(false); // Reset the screen saver.
 
             boolean sendEvent = false;
 
-			if (_arrowsAsButtons) {
-				switch (keycode) {
-				case KeyEvent.KEYCODE_DPAD_LEFT:
-				case KeyEvent.KEYCODE_DPAD_CENTER:
-					updatePointerButtons (1, true);
-					return true;
-				case KeyEvent.KEYCODE_DPAD_UP:
-				case KeyEvent.KEYCODE_DPAD_DOWN:
-					updatePointerButtons (2, true);
-					return true;
-				case KeyEvent.KEYCODE_DPAD_RIGHT:
-					updatePointerButtons (3, true);
-					return true;
-				}
-			}
+            if (_arrowsAsButtons) {
+                switch (keycode) {
+                    case KeyEvent.KEYCODE_DPAD_LEFT:
+                    case KeyEvent.KEYCODE_DPAD_CENTER:
+                        updatePointerButtons(1, true);
+                        return true;
+                    case KeyEvent.KEYCODE_DPAD_UP:
+                    case KeyEvent.KEYCODE_DPAD_DOWN:
+                        updatePointerButtons(2, true);
+                        return true;
+                    case KeyEvent.KEYCODE_DPAD_RIGHT:
+                        updatePointerButtons(3, true);
+                        return true;
+                }
+            }
 
-			switch (keycode) {
-				case KeyEvent.KEYCODE_BACK:
-					if (! _inhibitBackButton)
-						return false;
-					keycode = 128 - _xServer.getKeyboard().getMinimumKeycodeDiff(); // Special keycode since keycode value 5 is out of range
-					sendEvent = true;
-					break;
-				case KeyEvent.KEYCODE_MENU:
-					return false;
-				case KeyEvent.KEYCODE_VOLUME_UP:
-					updatePointerButtons (1, true);
-					break;
-				case KeyEvent.KEYCODE_VOLUME_DOWN:
-					updatePointerButtons (3, true);
-					break;
-				default:
-					sendEvent = true;
-					break;
-			}
-	
-			updateModifiers();
-            if (sendEvent) notifyKeyPressedReleased(keycode, true);
+            switch (keycode) {
+                case KeyEvent.KEYCODE_BACK:
+                    if (!_inhibitBackButton)
+                        return false;
+                    keycode = 128 - _xServer.getKeyboard().getMinimumKeycodeDiff(); // Special keycode since keycode
+                                                                                    // value 5 is out of range
+                    sendEvent = true;
+                    break;
+                case KeyEvent.KEYCODE_MENU:
+                    return false;
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    updatePointerButtons(1, true);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    updatePointerButtons(3, true);
+                    break;
+                default:
+                    sendEvent = true;
+                    break;
+            }
+
+            updateModifiers();
+            if (sendEvent)
+                notifyKeyPressedReleased(keycode, true);
         }
 
         return true;
@@ -1169,50 +1243,53 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
     @Override
     public boolean onKeyUp(int keycode, KeyEvent event) {
         synchronized (_xServer) {
-            if (_rootWindow == null) return false;
+            if (_rootWindow == null)
+                return false;
 
-            blank(false);    // Reset the screen saver.
+            blank(false); // Reset the screen saver.
 
             boolean sendEvent = false;
 
-			if (_arrowsAsButtons) {
-				switch (keycode) {
-				case KeyEvent.KEYCODE_DPAD_LEFT:
-				case KeyEvent.KEYCODE_DPAD_CENTER:
-					updatePointerButtons (1, false);
-					return true;
-				case KeyEvent.KEYCODE_DPAD_UP:
-				case KeyEvent.KEYCODE_DPAD_DOWN:
-					updatePointerButtons (2, false);
-					return true;
-				case KeyEvent.KEYCODE_DPAD_RIGHT:
-					updatePointerButtons (3, false);
-					return true;
-				}
-			}
+            if (_arrowsAsButtons) {
+                switch (keycode) {
+                    case KeyEvent.KEYCODE_DPAD_LEFT:
+                    case KeyEvent.KEYCODE_DPAD_CENTER:
+                        updatePointerButtons(1, false);
+                        return true;
+                    case KeyEvent.KEYCODE_DPAD_UP:
+                    case KeyEvent.KEYCODE_DPAD_DOWN:
+                        updatePointerButtons(2, false);
+                        return true;
+                    case KeyEvent.KEYCODE_DPAD_RIGHT:
+                        updatePointerButtons(3, false);
+                        return true;
+                }
+            }
 
-			switch (keycode) {
-				case KeyEvent.KEYCODE_BACK:
-					if (! _inhibitBackButton)
-						return false;
-					keycode = 128 - _xServer.getKeyboard().getMinimumKeycodeDiff(); // Special keycode since keycode value 5 is out of range
-					sendEvent = true;
-					break;
-				case KeyEvent.KEYCODE_MENU:
-					return false;
-				case KeyEvent.KEYCODE_VOLUME_UP:
-					updatePointerButtons (1, false);
-					break;
-				case KeyEvent.KEYCODE_VOLUME_DOWN:
-					updatePointerButtons (3, false);
-					break;
-				default:
-					sendEvent = true;
-					break;
-			}
-	
-			updateModifiers();
-            if (sendEvent) notifyKeyPressedReleased(keycode, false);
+            switch (keycode) {
+                case KeyEvent.KEYCODE_BACK:
+                    if (!_inhibitBackButton)
+                        return false;
+                    keycode = 128 - _xServer.getKeyboard().getMinimumKeycodeDiff(); // Special keycode since keycode
+                                                                                    // value 5 is out of range
+                    sendEvent = true;
+                    break;
+                case KeyEvent.KEYCODE_MENU:
+                    return false;
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    updatePointerButtons(1, false);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    updatePointerButtons(3, false);
+                    break;
+                default:
+                    sendEvent = true;
+                    break;
+            }
+
+            updateModifiers();
+            if (sendEvent)
+                notifyKeyPressedReleased(keycode, false);
         }
 
         return true;
@@ -1227,29 +1304,29 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
     public void write(InputOutput io) throws IOException {
         Visual vis = _xServer.getRootVisual();
 
-        io.writeInt(_rootWindow.getId());        // Root window ID.
-        io.writeInt(_defaultColormap.getId());    // Default colormap ID.
-        io.writeInt(_defaultColormap.getWhitePixel());    // White pixel.
-        io.writeInt(_defaultColormap.getBlackPixel());    // Black pixel.
-        io.writeInt(0);    // Current input masks.
-        io.writeShort((short) getWidth());    // Width in pixels.
-        io.writeShort((short) getHeight());    // Height in pixels.
-        io.writeShort((short) (getWidth() / _pixelsPerMillimeter));    // Width in millimeters.
-        io.writeShort((short) (getHeight() / _pixelsPerMillimeter));    // Height in millimeters.
-        io.writeShort((short) 1);    // Minimum installed maps.
-        io.writeShort((short) 1);    // Maximum installed maps.
-        io.writeInt(vis.getId());    // Root visual ID.
+        io.writeInt(_rootWindow.getId()); // Root window ID.
+        io.writeInt(_defaultColormap.getId()); // Default colormap ID.
+        io.writeInt(_defaultColormap.getWhitePixel()); // White pixel.
+        io.writeInt(_defaultColormap.getBlackPixel()); // Black pixel.
+        io.writeInt(0); // Current input masks.
+        io.writeShort((short) getWidth()); // Width in pixels.
+        io.writeShort((short) getHeight()); // Height in pixels.
+        io.writeShort((short) (getWidth() / _pixelsPerMillimeter)); // Width in millimeters.
+        io.writeShort((short) (getHeight() / _pixelsPerMillimeter)); // Height in millimeters.
+        io.writeShort((short) 1); // Minimum installed maps.
+        io.writeShort((short) 1); // Maximum installed maps.
+        io.writeInt(vis.getId()); // Root visual ID.
         io.writeByte(vis.getBackingStoreInfo());
         io.writeByte((byte) (vis.getSaveUnder() ? 1 : 0));
-        io.writeByte((byte) vis.getDepth());    // Root depth.
-        io.writeByte((byte) 1);    // Number of allowed depths.
+        io.writeByte((byte) vis.getDepth()); // Root depth.
+        io.writeByte((byte) 1); // Number of allowed depths.
 
         // Write the only allowed depth.
-        io.writeByte((byte) vis.getDepth());    // Depth.
-        io.writeByte((byte) 0);    // Unused.
-        io.writeShort((short) 1);    // Number of visuals with this depth.
-        io.writePadBytes(4);    // Unused.
-        vis.write(io);        // The visual at this depth.
+        io.writeByte((byte) vis.getDepth()); // Depth.
+        io.writeByte((byte) 0); // Unused.
+        io.writeShort((short) 1); // Number of visuals with this depth.
+        io.writePadBytes(4); // Unused.
+        vis.write(io); // The visual at this depth.
     }
 
     /**
@@ -1264,9 +1341,9 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
 
         synchronized (io) {
             Util.writeReplyHeader(client, (byte) 0);
-            io.writeInt(n);    // Reply length.
-            io.writeShort((short) n);    // Number of colormaps.
-            io.writePadBytes(22);    // Unused.
+            io.writeInt(n); // Reply length.
+            io.writeShort((short) n); // Number of colormaps.
+            io.writePadBytes(22); // Unused.
 
             for (Colormap cmap : _installedColormaps)
                 io.writeInt(cmap.getId());
@@ -1284,7 +1361,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      * @param bytesRemaining Bytes yet to be read in the request.
      * @throws IOException
      */
-    public void processRequest(XServer xServer, Client client, byte opcode, byte arg, int bytesRemaining) throws IOException {
+    public void processRequest(XServer xServer, Client client, byte opcode, byte arg, int bytesRemaining)
+            throws IOException {
         InputOutput io = client.getInputOutput();
 
         switch (opcode) {
@@ -1309,10 +1387,11 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                     io.readSkip(bytesRemaining);
                     ErrorCode.write(client, ErrorCode.Length, opcode, 0);
                 } else {
-                    int time = io.readInt();    // Time.
+                    int time = io.readInt(); // Time.
                     int now = _xServer.getTimestamp();
 
-                    if (time == 0) time = now;
+                    if (time == 0)
+                        time = now;
 
                     if (time >= _grabPointerTime && time <= now && _grabPointerClient == client) {
                         _grabPointerClient = null;
@@ -1336,11 +1415,11 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                     io.readSkip(bytesRemaining);
                     ErrorCode.write(client, ErrorCode.Length, opcode, 0);
                 } else {
-                    int wid = io.readInt();    // Grab window.
-                    int modifiers = io.readShort();    // Modifiers.
+                    int wid = io.readInt(); // Grab window.
+                    int modifiers = io.readShort(); // Modifiers.
                     Resource r = _xServer.getResource(wid);
 
-                    io.readSkip(2);    // Unused.
+                    io.readSkip(2); // Unused.
 
                     if (r == null || r.getType() != Resource.WINDOW) {
                         ErrorCode.write(client, ErrorCode.Window, opcode, wid);
@@ -1356,29 +1435,34 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                     io.readSkip(bytesRemaining);
                     ErrorCode.write(client, ErrorCode.Length, opcode, 0);
                 } else {
-                    int cid = io.readInt();    // Cursor.
-                    int time = io.readInt();    // Time.
-                    int mask = io.readShort();    // Event mask.
+                    int cid = io.readInt(); // Cursor.
+                    int time = io.readInt(); // Time.
+                    int mask = io.readShort(); // Event mask.
                     Cursor c = null;
 
-                    io.readSkip(2);    // Unused.
+                    io.readSkip(2); // Unused.
 
                     if (cid != 0) {
                         Resource r = _xServer.getResource(cid);
 
                         if (r == null || r.getType() != Resource.CURSOR)
                             ErrorCode.write(client, ErrorCode.Cursor, opcode, 0);
-                        else c = (Cursor) r;
+                        else
+                            c = (Cursor) r;
                     }
 
                     int now = _xServer.getTimestamp();
 
-                    if (time == 0) time = now;
+                    if (time == 0)
+                        time = now;
 
-                    if (_grabPointerWindow != null && !_grabPointerPassive && _grabPointerClient == client && time >= _grabPointerTime && time <= now && (cid == 0 || c != null)) {
+                    if (_grabPointerWindow != null && !_grabPointerPassive && _grabPointerClient == client
+                            && time >= _grabPointerTime && time <= now && (cid == 0 || c != null)) {
                         _grabEventMask = mask;
-                        if (c != null) _grabCursor = c;
-                        else _grabCursor = _grabPointerWindow.getCursor();
+                        if (c != null)
+                            _grabCursor = c;
+                        else
+                            _grabCursor = _grabPointerWindow.getCursor();
                     }
                 }
                 break;
@@ -1395,10 +1479,11 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                     io.readSkip(bytesRemaining);
                     ErrorCode.write(client, ErrorCode.Length, opcode, 0);
                 } else {
-                    int time = io.readInt();    // Time.
+                    int time = io.readInt(); // Time.
                     int now = _xServer.getTimestamp();
 
-                    if (time == 0) time = now;
+                    if (time == 0)
+                        time = now;
 
                     if (time >= _grabKeyboardTime && time <= now) {
                         Window pw = _rootWindow.windowAtPoint(_motionX, _motionY);
@@ -1422,11 +1507,11 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                     io.readSkip(bytesRemaining);
                     ErrorCode.write(client, ErrorCode.Length, opcode, 0);
                 } else {
-                    int wid = io.readInt();    // Grab window.
-                    int modifiers = io.readShort();    // Modifiers.
+                    int wid = io.readInt(); // Grab window.
+                    int modifiers = io.readShort(); // Modifiers.
                     Resource r = _xServer.getResource(wid);
 
-                    io.readSkip(2);    // Unused.
+                    io.readSkip(2); // Unused.
 
                     if (r == null || r.getType() != Resource.WINDOW) {
                         ErrorCode.write(client, ErrorCode.Window, opcode, wid);
@@ -1455,15 +1540,18 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
                 } else {
                     int wid;
 
-                    if (_focusWindow == null) wid = 0;
-                    else if (_focusWindow == _rootWindow) wid = 1;
-                    else wid = _focusWindow.getId();
+                    if (_focusWindow == null)
+                        wid = 0;
+                    else if (_focusWindow == _rootWindow)
+                        wid = 1;
+                    else
+                        wid = _focusWindow.getId();
 
                     synchronized (io) {
                         Util.writeReplyHeader(client, _focusRevertTo);
-                        io.writeInt(0);    // Reply length.
-                        io.writeInt(wid);    // Focus window.
-                        io.writePadBytes(20);    // Unused.
+                        io.writeInt(0); // Reply length.
+                        io.writeInt(wid); // Focus window.
+                        io.writePadBytes(20); // Unused.
                     }
                     io.flush();
                 }
@@ -1471,7 +1559,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         }
     }
 
-    private void processAllowEvents(Client client, byte opcode, InputOutput io, int bytesRemaining, byte mode) throws IOException {
+    private void processAllowEvents(Client client, byte opcode, InputOutput io, int bytesRemaining, byte mode)
+            throws IOException {
         if (bytesRemaining != 4) {
             io.readSkip(bytesRemaining);
             ErrorCode.write(client, ErrorCode.Length, opcode, 0);
@@ -1540,7 +1629,7 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
     }
 
     /**
-     * Toggle shared clipboard. Shared clipboard works when using the long press 
+     * Toggle shared clipboard. Shared clipboard works when using the long press
      * action shortcuts.
      *
      * @return new state of switch
@@ -1580,16 +1669,16 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      */
     private void processSendEventRequest(XServer xServer, Client client, boolean propagate) throws IOException {
         InputOutput io = client.getInputOutput();
-        int wid = io.readInt();    // Destination window.
-        int mask = io.readInt();    // Event mask.
+        int wid = io.readInt(); // Destination window.
+        int mask = io.readInt(); // Event mask.
         byte[] event = new byte[32];
         Window w;
 
-        io.readBytes(event, 0, 32);    // Event.
+        io.readBytes(event, 0, 32); // Event.
 
-        if (wid == 0) {        // Pointer window.
+        if (wid == 0) { // Pointer window.
             w = _rootWindow.windowAtPoint(_motionX, _motionY);
-        } else if (wid == 1) {    // Input focus.
+        } else if (wid == 1) { // Input focus.
             if (_focusWindow == null) {
                 ErrorCode.write(client, ErrorCode.Window, RequestCode.SendEvent, wid);
                 return;
@@ -1597,15 +1686,18 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
 
             Window pw = _rootWindow.windowAtPoint(_motionX, _motionY);
 
-            if (pw.isAncestor(_focusWindow)) w = pw;
-            else w = _focusWindow;
+            if (pw.isAncestor(_focusWindow))
+                w = pw;
+            else
+                w = _focusWindow;
         } else {
             Resource r = _xServer.getResource(wid);
 
             if (r == null || r.getType() != Resource.WINDOW) {
                 ErrorCode.write(client, ErrorCode.Window, RequestCode.SendEvent, wid);
                 return;
-            } else w = (Window) r;
+            } else
+                w = (Window) r;
         }
 
         Vector<Client> dc = null;
@@ -1616,22 +1708,28 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         } else if (!propagate) {
             dc = w.getSelectingClients(mask);
         } else {
-            for (; ; ) {
-                if ((dc = w.getSelectingClients(mask)) != null) break;
+            for (;;) {
+                if ((dc = w.getSelectingClients(mask)) != null)
+                    break;
 
                 mask &= ~w.getDoNotPropagateMask();
-                if (mask == 0) break;
+                if (mask == 0)
+                    break;
 
                 w = w.getParent();
-                if (w == null) break;
-                if (wid == 1 && w == _focusWindow) break;
+                if (w == null)
+                    break;
+                if (wid == 1 && w == _focusWindow)
+                    break;
             }
         }
 
-        if (dc == null) return;
+        if (dc == null)
+            return;
 
         for (Client c : dc) {
-            if (c == null) continue;
+            if (c == null)
+                continue;
             InputOutput dio = c.getInputOutput();
 
             synchronized (dio) {
@@ -1659,13 +1757,13 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      */
     private void processGrabPointerRequest(XServer xServer, Client client, boolean ownerEvents) throws IOException {
         InputOutput io = client.getInputOutput();
-        int wid = io.readInt();    // Grab window.
-        int mask = io.readShort();    // Event mask.
-        boolean psync = (io.readByte() == 0);    // Pointer mode.
-        boolean ksync = (io.readByte() == 0);    // Keyboard mode.
-        int cwid = io.readInt();    // Confine-to.
-        int cid = io.readInt();    // Cursor.
-        int time = io.readInt();    // Time.
+        int wid = io.readInt(); // Grab window.
+        int mask = io.readShort(); // Event mask.
+        boolean psync = (io.readByte() == 0); // Pointer mode.
+        boolean ksync = (io.readByte() == 0); // Keyboard mode.
+        int cwid = io.readInt(); // Confine-to.
+        int cid = io.readInt(); // Cursor.
+        int time = io.readInt(); // Time.
         Resource r = _xServer.getResource(wid);
 
         if (r == null || r.getType() != Resource.WINDOW) {
@@ -1697,17 +1795,19 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
             c = (Cursor) r;
         }
 
-        if (c == null) c = w.getCursor();
+        if (c == null)
+            c = w.getCursor();
 
-        byte status = 0;    // Success.
+        byte status = 0; // Success.
         int now = _xServer.getTimestamp();
 
-        if (time == 0) time = now;
+        if (time == 0)
+            time = now;
 
         if (time < _grabPointerTime || time > now) {
-            status = 2;    // Invalid time.
+            status = 2; // Invalid time.
         } else if (_grabPointerWindow != null && _grabPointerClient != client) {
-            status = 1;    // Already grabbed.
+            status = 1; // Already grabbed.
         } else {
             _grabPointerClient = client;
             _grabPointerWindow = w;
@@ -1724,12 +1824,13 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
 
         synchronized (io) {
             Util.writeReplyHeader(client, status);
-            io.writeInt(0);    // Reply length.
-            io.writePadBytes(24);    // Unused.
+            io.writeInt(0); // Reply length.
+            io.writePadBytes(24); // Unused.
         }
         io.flush();
 
-        if (status == 0) updatePointer(1);
+        if (status == 0)
+            updatePointer(1);
     }
 
     /**
@@ -1742,18 +1843,18 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      */
     private void processGrabButtonRequest(XServer xServer, Client client, boolean ownerEvents) throws IOException {
         InputOutput io = client.getInputOutput();
-        int wid = io.readInt();    // Grab window.
-        int mask = io.readShort();    // Event mask.
-        boolean psync = (io.readByte() == 0);    // Pointer mode.
-        boolean ksync = (io.readByte() == 0);    // Keyboard mode.
-        int cwid = io.readInt();    // Confine-to.
-        int cid = io.readInt();    // Cursor.
-        byte button = (byte) io.readByte();    // Button.
+        int wid = io.readInt(); // Grab window.
+        int mask = io.readShort(); // Event mask.
+        boolean psync = (io.readByte() == 0); // Pointer mode.
+        boolean ksync = (io.readByte() == 0); // Keyboard mode.
+        int cwid = io.readInt(); // Confine-to.
+        int cid = io.readInt(); // Cursor.
+        byte button = (byte) io.readByte(); // Button.
         int modifiers;
         Resource r = _xServer.getResource(wid);
 
-        io.readSkip(1);    // Unused.
-        modifiers = io.readShort();    // Modifiers.
+        io.readSkip(1); // Unused.
+        modifiers = io.readShort(); // Modifiers.
 
         if (r == null || r.getType() != Resource.WINDOW) {
             ErrorCode.write(client, ErrorCode.Window, RequestCode.GrabPointer, wid);
@@ -1784,7 +1885,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
             c = (Cursor) r;
         }
 
-        w.addPassiveButtonGrab(new PassiveButtonGrab(client, w, button, modifiers, ownerEvents, mask, psync, ksync, cw, c));
+        w.addPassiveButtonGrab(
+                new PassiveButtonGrab(client, w, button, modifiers, ownerEvents, mask, psync, ksync, cw, c));
     }
 
     /**
@@ -1797,13 +1899,13 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      */
     private void processGrabKeyboardRequest(XServer xServer, Client client, boolean ownerEvents) throws IOException {
         InputOutput io = client.getInputOutput();
-        int wid = io.readInt();    // Grab window.
-        int time = io.readInt();    // Time.
-        boolean psync = (io.readByte() == 0);    // Pointer mode.
-        boolean ksync = (io.readByte() == 0);    // Keyboard mode.
+        int wid = io.readInt(); // Grab window.
+        int time = io.readInt(); // Time.
+        boolean psync = (io.readByte() == 0); // Pointer mode.
+        boolean ksync = (io.readByte() == 0); // Keyboard mode.
         Resource r = _xServer.getResource(wid);
 
-        io.readSkip(2);    // Unused.
+        io.readSkip(2); // Unused.
 
         if (r == null || r.getType() != Resource.WINDOW) {
             ErrorCode.write(client, ErrorCode.Window, RequestCode.GrabKeyboard, wid);
@@ -1811,15 +1913,16 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         }
 
         Window w = (Window) r;
-        byte status = 0;    // Success.
+        byte status = 0; // Success.
         int now = _xServer.getTimestamp();
 
-        if (time == 0) time = now;
+        if (time == 0)
+            time = now;
 
         if (time < _grabKeyboardTime || time > now) {
-            status = 2;    // Invalid time.
+            status = 2; // Invalid time.
         } else if ((_grabKeyboardWindow != null) && (_grabKeyboardClient != client)) {
-            status = 1;    // Already grabbed.
+            status = 1; // Already grabbed.
         } else {
             _grabKeyboardClient = client;
             _grabKeyboardWindow = w;
@@ -1831,8 +1934,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
 
         synchronized (io) {
             Util.writeReplyHeader(client, status);
-            io.writeInt(0);    // Reply length.
-            io.writePadBytes(24);    // Unused.
+            io.writeInt(0); // Reply length.
+            io.writePadBytes(24); // Unused.
         }
         io.flush();
 
@@ -1850,14 +1953,14 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      */
     private void processGrabKeyRequest(XServer xServer, Client client, boolean ownerEvents) throws IOException {
         InputOutput io = client.getInputOutput();
-        int wid = io.readInt();    // Grab window.
-        int modifiers = io.readShort();    // Modifiers.
-        byte keycode = (byte) io.readByte();    // Key.
-        boolean psync = (io.readByte() == 0);    // Pointer mode.
-        boolean ksync = (io.readByte() == 0);    // Keyboard mode.
+        int wid = io.readInt(); // Grab window.
+        int modifiers = io.readShort(); // Modifiers.
+        byte keycode = (byte) io.readByte(); // Key.
+        boolean psync = (io.readByte() == 0); // Pointer mode.
+        boolean ksync = (io.readByte() == 0); // Keyboard mode.
         Resource r = _xServer.getResource(wid);
 
-        io.readSkip(3);    // Unused.
+        io.readSkip(3); // Unused.
 
         if (r == null || r.getType() != Resource.WINDOW) {
             ErrorCode.write(client, ErrorCode.Window, RequestCode.GrabPointer, wid);
@@ -1879,8 +1982,8 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      */
     private void processSetInputFocusRequest(XServer xServer, Client client, byte revertTo) throws IOException {
         InputOutput io = client.getInputOutput();
-        int wid = io.readInt();    // Focus window.
-        int time = io.readInt();    // Time.
+        int wid = io.readInt(); // Focus window.
+        int time = io.readInt(); // Time.
         Window w;
 
         if (wid == 0) {
@@ -1902,11 +2005,14 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
 
         int now = xServer.getTimestamp();
 
-        if (time == 0) time = now;
+        if (time == 0)
+            time = now;
 
-        if (time < _focusLastChangeTime || time > now) return;
+        if (time < _focusLastChangeTime || time > now)
+            return;
 
-        Window.focusInOutNotify(_focusWindow, w, _rootWindow.windowAtPoint(_motionX, _motionY), _rootWindow, _grabKeyboardWindow == null ? 0 : 3);
+        Window.focusInOutNotify(_focusWindow, w, _rootWindow.windowAtPoint(_motionX, _motionY), _rootWindow,
+                _grabKeyboardWindow == null ? 0 : 3);
 
         _focusWindow = w;
         _focusRevertTo = revertTo;
@@ -1921,16 +2027,19 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         _grabKeyboardSynchronous = _grabKeyboardFreezeNextEvent;
     }
 
-    private void callGrabButtonNotify(Window w, boolean pressed, int motionX, int motionY, int button, int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
+    private void callGrabButtonNotify(Window w, boolean pressed, int motionX, int motionY, int button,
+            int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
         w.grabButtonNotify(pressed, motionX, motionY, button, grabEventMask, grabPointerClient, grabPointerOwnerEvents);
         reflectPointerFreezeNextEvent();
     }
 
-    private void callGrabMotionNotify(Window w, int x, int y, int buttons, int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
+    private void callGrabMotionNotify(Window w, int x, int y, int buttons, int grabEventMask, Client grabPointerClient,
+            boolean grabPointerOwnerEvents) {
         w.grabMotionNotify(x, y, buttons & 0xff00, grabEventMask, grabPointerClient, grabPointerOwnerEvents);
     }
 
-    private void callGrabKeyNotify(Window w, boolean pressed, int motionX, int motionY, int keycode, Client grabKeyboardClient, boolean grabKeyboardOwnerEvents) {
+    private void callGrabKeyNotify(Window w, boolean pressed, int motionX, int motionY, int keycode,
+            Client grabKeyboardClient, boolean grabKeyboardOwnerEvents) {
         w.grabKeyNotify(pressed, motionX, motionY, keycode, grabKeyboardClient, grabKeyboardOwnerEvents);
         reflectKeyboardFreezeNextEvent();
     }
@@ -1960,7 +2069,7 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
     /**
      * @return Window used for shared clipboard.
      */
-    public Window getSharedClipboardWindow(){
+    public Window getSharedClipboardWindow() {
         return _sharedClipboardWindow;
     }
 }

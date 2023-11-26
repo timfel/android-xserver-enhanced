@@ -2,6 +2,16 @@
 <h4 align="center">An X11 X-Server written in Java</h4>
 <p align="center"><a href="https://f-droid.org/packages/au.com.darkside.xdemo/"><img src="https://f-droid.org/wiki/images/0/06/F-Droid-button_get-it-on.png"></a><br/><a href='https://play.google.com/store/apps/details?id=au.com.darkside.xdemo'><img width='200' height='85' alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a></p>
 
+This fork contain these changes:
+ - X server doesn't restart on screen resolution changes - fixes #35 and #25
+ - Workaround fix for: `Unsupported screen format: depth: 32, bits_per_pixel: 24, red_mask: ff0000, blue_mask: ff` - fixes (almost) #30
+
+WIP:
+ - Gestures support (like three finger tap for hide navigation panel, zooming with fingers) - Almost done! Some minor problem with handling events
+
+TODO:
+ - XKB, MIT SHM, SYNC, GLX extensions support - should fix #17 and #27
+
 This project implements an X11 server for use with Android devices, written in Java. The X11 server runs within an Android View subclass, allowing it to be embedded in other applications. This implementation has proven to be very useful for porting C++ [FLTK](https://www.fltk.org/) applications to Android.
 
 This project also includes a simple demo application.

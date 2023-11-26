@@ -17,6 +17,7 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.view.ScaleGestureDetector;
 import android.view.inputmethod.InputConnection;
 import android.util.DisplayMetrics;
 import android.view.inputmethod.EditorInfo;
@@ -29,6 +30,7 @@ import android.os.Looper;
 import android.os.Handler;
 import android.view.inputmethod.InputMethodManager;
 import android.app.Service;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -36,7 +38,7 @@ import java.util.Queue;
 // import java.util.List;
 import java.util.Vector;
 import java.nio.charset.StandardCharsets;
-import java.lang.Math; 
+import java.lang.Math;
 
 /**
  * This class implements an X Windows screen.
@@ -47,9 +49,18 @@ import java.lang.Math;
  * @author Matthew Kwan
  */
 public class ScreenView extends View {
+    private static final String LOG_TAG = "ScreenView";
 
     private boolean isNavBarHidden = false;
     private boolean isTogglingNavBar = false;
+
+    ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            Log.d(LOG_TAG, "ScaleGestureDetector: Gesture was detected");
+            return true;
+        }
+    });
 
     private interface PendingEvent {
         public void run();
@@ -223,6 +234,9 @@ public class ScreenView extends View {
     private double _xPrec = 0;
     private double _yPrec = 0;
 
+    private int _xPrev = 0;
+    private int _yPrev = 0;
+
     /**
      * Constructor.
      *
@@ -256,26 +270,40 @@ public class ScreenView extends View {
 
         setOnTouchListener(new View.OnTouchListener() {
             // TODO: do not handle clicks from three finger touches
-            // private Handler mHandler;
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-/*                if (mHandler != null) {
-                    mHandler.removeCallbacksAndMessages(null);
-                }
-                mHandler = new Handler();
+                    Log.d(LOG_TAG, "onTouch: event: " + event.toString());
 
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        */
+                    /*
+                    int x = (int) event.getX();
+                    int y = (int) event.getY();
+
+                    // TODO: collibrate screen's average click event process time
+                    sleepThread(95);
+
+                    if (x ==_xPrev && y == _yPrev) {
+                        Log.d(LOG_TAG, "x and y is the same as old position");
                         if(event.getPointerCount() == 3){
-                            // Bewkaaa logic
+                            Log.d(LOG_TAG, "onTouch: Three finger touch detected");
                             toggleNavigationBar();
-                            return true;
+                            
                         }
-                        // } else {
-                            // breeee logic
+                        return false;
+                }
+
+                    _xPrev = x;
+                    _yPrev = y;
+                    */
+
+                    if(event.getPointerCount() == 3){
+                            Log.d(LOG_TAG, "onTouch: Three finger touch detected");
+                            toggleNavigationBar();
+                            return false;
+                        }
+
+                        mScaleDetector.onTouchEvent(event);
+
                             synchronized (_xServer) {
                                 if (_rootWindow == null) return false;
                     
@@ -293,7 +321,6 @@ public class ScreenView extends View {
                                         updatePointerButtons (3, false);
                                 }
                             }
-                        // }
         
                 if(event.getActionMasked() == MotionEvent.ACTION_DOWN){
                     _totalMove = 0;
@@ -312,17 +339,11 @@ public class ScreenView extends View {
 
                 if(_totalMove < 20){ // -- workaround for phones with cheap touchscreens (which will constantly trigger ACTION_MOVE events)
                     _ignoreLongPress = false;
-                    return false;
-                    // statusCode = false; // make longClick Listeners work!
+                    return false; // make longClick Listeners work!
                 }
 
                 _ignoreLongPress = true;
-                //statusCode = true;
                 return true;
-            /*
-            }}, 15);
-            return statusCode;
-            */
             }
             
         });
@@ -672,6 +693,14 @@ public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         }
 
         revertFocus(w);
+    }
+
+    private void sleepThread(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

@@ -28,7 +28,7 @@ To display programs within the X-Server demo app you need to set the DISPLAY env
 
 This project uses gradle build system, so if you don't want to mess with Android Studio you can just
  open console at project's root folder and type `./gradlew build`. Generated APK can be found under
- `demo/build/outputs/`.
+ `app/build/outputs/`.
 
 #### Manual (Makefile based)
 

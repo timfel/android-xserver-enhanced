@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="au.com.darkside.xdemo">
+    package="au.com.darkside.x11server">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -14,10 +14,10 @@
         android:extractNativeLibs="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name">
-        <service android:name="au.com.darkside.xdemo.XServerService" 
+        <service android:name="au.com.darkside.x11server.XServerService" 
                  android:stopWithTask="false" />
         <activity
-            android:name="au.com.darkside.xdemo.XServerActivity"
+            android:name="au.com.darkside.x11server.XServerActivity"
             android:label="@string/app_name"
             android:screenOrientation="user"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection|density"
@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="au.com.darkside.xdemo.AccessControlEditor"
+            android:name="au.com.darkside.x11server.AccessControlEditor"
             android:label="Authorized IP addresses" />
     </application>
 </manifest>

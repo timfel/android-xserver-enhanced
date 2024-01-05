@@ -1,5 +1,5 @@
 // only needed to capture kill of app, here used to get rid off all notifications
-package au.com.darkside.xdemo;
+package au.com.darkside.x11server;
 
 import android.app.Service;
 import android.app.NotificationManager;

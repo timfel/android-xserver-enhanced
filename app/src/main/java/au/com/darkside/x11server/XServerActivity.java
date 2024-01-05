@@ -1,4 +1,4 @@
-package au.com.darkside.xdemo;
+package au.com.darkside.x11server;
 
 import android.view.ScaleGestureDetector;
 import android.view.MotionEvent;

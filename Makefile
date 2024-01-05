@@ -1,7 +1,7 @@
 # Author: Daniel Giritzer (giri@nwrk.biz)
 ## Workdir
 WORKDIR=$(shell pwd)
-PROJNAME=au.com.darkside.xdemo
+PROJNAME=au.com.darkside.x11server
 LIBNAME=au.com.darkside.xserver
 
 # PLATFORM=$(if $(PLATFORM),arm) # Possible platform: intel, arm, mips (?)
@@ -36,20 +36,26 @@ JAVAC=$(JAVA_HOME)/bin/javac
 JARSIGNER=$(JAVA_HOME)/bin/jarsigner
 
 # Android Sources and resources
-ANDROID_SRC=$(WORKDIR)/demo/src/main
+ANDROID_SRC=$(WORKDIR)/app/src/main
 ANDROID_LIB=$(WORKDIR)/library/src/main
 ANDROID_SOURCES=$(shell find $(WORKDIR) -name *.java)
 ANDROID_NATIVE_LIBS=$(shell cd $(ANDROID_SRC) && find ./jniLibs -name *.so)
 ANDROID_NATIVE_LIBS_AAPT_CMD=$(subst ./jniLibs,lib,$(addprefix && $(AAPT) add $(GENDIR_ANDROID)/$(PROJNAME).apk.unaligned ,$(ANDROID_NATIVE_LIBS)))
 
 # out
-OUT=$(WORKDIR)/demo/build/outputs
+OUT=$(WORKDIR)/app/build/outputs
 GENDIR_ANDROID=$(OUT)/gen
 CLASSDIR_ANDROID=$(OUT)/class
 NATIVELIBDIR_ANDROID=$(OUT)/lib
 OUT_ANDROID=$(OUT)/apk
 
 all: android_release
+
+.PHONY: export_env
+export_env:
+	if [ -f .env ]; then \
+		export $(shell cat .env | sed 's/#.*//g' | xargs); \
+	fi
 
 android_debug: clean prepare_dirs
 	$(AAPT) package -f -m --debug-mode --version-code $(VER_CODE) --version-name $(VER_NAME) --min-sdk-version $(MIN_SDK) --target-sdk-version $(TARGET_SDK) -J $(GENDIR_ANDROID) --auto-add-overlay -M $(ANDROID_SRC)/AndroidManifest.xml -S $(ANDROID_LIB)/res -S $(ANDROID_SRC)/res -I $(ANDROID_CP)  --extra-packages $(LIBNAME)

@@ -315,15 +315,16 @@ public class ScreenView extends View {
                     return false;
                 }
 
-
-
                 if (mScaleListener != null) {
                     mScaleDetector.onTouchEvent(event);
         if (mScaleListener.scaleInProgress == true) {
+            Log.d(LOG_TAG, "mScaleListener.scaleInProgress is true");
             return false;
         }
-    }           
-
+        Log.d(LOG_TAG, "mScaleListener.scaleInProgress is false");
+    }       
+    
+    Log.d(LOG_TAG, "Process _xServer touches");
                 synchronized (_xServer) {
                     if (_rootWindow == null)
                         return false;

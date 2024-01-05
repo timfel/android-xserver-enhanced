@@ -36,7 +36,7 @@ public class ScaleGestureListenerImpl implements ScaleGestureDetector.OnScaleGes
             public void run() {
                 scaleInProgress = false;
             }
-        }, 500);
+        }, 1500);
     }
 
 }

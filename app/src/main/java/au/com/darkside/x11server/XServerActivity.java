@@ -188,6 +188,25 @@ public class XServerActivity extends Activity {
                 Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
             }
         }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Builder nb = new Notification.Builder(this)
+            .setSmallIcon(android.R.drawable.ic_menu_view)
+            .setContentTitle("Running!")
+            .setContentText("XServer running in background.")
+            .setContentIntent(pendingIntent)
+            .setOngoing(true);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            try {
+                nb.getClass().getMethod("setChannelId", String.class).invoke(nb, NOTIFICATION_CHANNEL_DEFAULT);
+            } catch (Exception e) {
+                Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
+            }
+        }
+
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(1, nb.build());
     }
 /*
     // @Override
@@ -206,9 +225,9 @@ public class XServerActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(1);
-        _wakeLock.acquire();
+        // NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // manager.cancel(1);
+        //_wakeLock.acquire();
     }
 
     /**
@@ -217,6 +236,7 @@ public class XServerActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
+        /*
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, getIntent(),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder nb = new Notification.Builder(this)
@@ -225,11 +245,13 @@ public class XServerActivity extends Activity {
                 .setContentText("XServer running in background.")
                 .setContentIntent(pendingIntent)
                 .setOngoing(true);
+        */
 
         /*
          * Set notification channel as it required for notifications on Android >= 8
          * Use reflection to stay backward compatible with sdk provided by debian
          */
+        /*
         if (Build.VERSION.SDK_INT >= 26) {
             try {
                 nb.getClass().getMethod("setChannelId", String.class).invoke(nb, NOTIFICATION_CHANNEL_DEFAULT);
@@ -240,8 +262,9 @@ public class XServerActivity extends Activity {
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(1, nb.build());
+        */
 
-        _wakeLock.release();
+        // _wakeLock.release();
     }
 /*
     @Override

@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -35,7 +36,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import au.com.darkside.xserver.ScaleGestureListenerImpl;
+import au.com.darkside.x11server.XServerFrameLayout;
 import au.com.darkside.xserver.ScreenView;
 import au.com.darkside.xserver.XServer;
 
@@ -64,9 +65,6 @@ public class XServerActivity extends Activity {
     private XServer _xServer;
     private ScreenView _screenView;
     private WakeLock _wakeLock;
-
-    private ScaleGestureListenerImpl scaleGestureDetector;
-
 
     private static final String NOTIFICATION_CHANNEL_DEFAULT = "default";
 
@@ -149,19 +147,10 @@ public class XServerActivity extends Activity {
         });
 
         setAccessControl();
-        FrameLayout fl = (FrameLayout) findViewById(R.id.frame);
-        /*
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int desiredHeight = displayMetrics.heightPixels;
-        int desiredWidth = displayMetrics.widthPixels;
-        */
-        _screenView = _xServer.getScreen();
+        XServerFrameLayout fl = (XServerFrameLayout) findViewById(R.id.frame);
 
-        _screenView.setOnScaleGestureListener(new ScaleGestureListenerImpl(_screenView));
-        
-        // FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(desiredWidth, desiredHeight);
-        // _screenView.setLayoutParams(params);
+        _screenView = _xServer.getScreen();
+ 
         fl.addView(_screenView);
 
         PowerManager pm;
@@ -200,7 +189,7 @@ public class XServerActivity extends Activity {
             }
         }
     }
-
+/*
     // @Override
                 public boolean onScaler(ScaleGestureDetector detector) {
                     float scaleFactor = detector.getScaleFactor();
@@ -210,6 +199,7 @@ public class XServerActivity extends Activity {
                     return true;
                 }
 
+*/
     /**
      * Called when the activity resumes.
      */

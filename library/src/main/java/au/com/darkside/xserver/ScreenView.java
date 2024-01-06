@@ -1,7 +1,6 @@
 package au.com.darkside.xserver;
 
-// TODO: toasts
-import android.content.Context;
+// TODO: drop toast imports
 import android.widget.Toast;
 
 import android.content.Context;
@@ -17,7 +16,6 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
-import android.view.ScaleGestureDetector;
 import android.view.inputmethod.InputConnection;
 import android.util.DisplayMetrics;
 import android.view.inputmethod.EditorInfo;
@@ -40,8 +38,6 @@ import java.util.Vector;
 import java.nio.charset.StandardCharsets;
 import java.lang.Math;
 
-import au.com.darkside.xserver.ScaleGestureListenerImpl;
-
 /**
  * This class implements an X Windows screen.
  * <p>
@@ -56,22 +52,10 @@ public class ScreenView extends View {
     private boolean isNavBarHidden = false;
     private boolean isTogglingNavBar = false;
    
-    private ScaleGestureListenerImpl mScaleListener;
-
-    public void setOnScaleGestureListener(ScaleGestureListenerImpl listener) {
-        mScaleListener = listener;
-        mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
-    }
-
     private interface PendingEvent {
         public void run();
     }
 
-    private ScaleGestureDetector mScaleDetector;
-/*
-    private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-    });
-*/
     private interface PendingPointerEvent extends PendingEvent {
     }
 
@@ -308,9 +292,9 @@ public class ScreenView extends View {
                  * _xPrev = x;
                  * _yPrev = y;
                  */
-
+/*
                 if (event.getPointerCount() == 3) {
-                    Log.d(LOG_TAG, "onTouch: Three finger touch detected");
+                    // Log.d(LOG_TAG, "onTouch: Three finger touch detected");
                     toggleNavigationBar();
                     return false;
                 }
@@ -323,7 +307,7 @@ public class ScreenView extends View {
         }
         Log.d(LOG_TAG, "mScaleListener.scaleInProgress is false");
     }       
-    
+  */  
     Log.d(LOG_TAG, "Process _xServer touches");
                 synchronized (_xServer) {
                     if (_rootWindow == null)
@@ -365,7 +349,7 @@ public class ScreenView extends View {
                 }
 
                 _ignoreLongPress = true;
-                return true;
+                return false;
             }
 
         });

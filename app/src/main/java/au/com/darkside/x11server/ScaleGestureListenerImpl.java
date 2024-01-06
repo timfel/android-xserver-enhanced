@@ -1,31 +1,42 @@
-package au.com.darkside.xserver;
+package au.com.darkside.x11server;
 
-// import au.com.darkside.xserver.OnScaleGestureListener;
-import au.com.darkside.xserver.ScreenView;
-
+// import au.com.darkside.xserver.ScreenView;
+import android.widget.FrameLayout;
 import android.view.ScaleGestureDetector;
 import android.os.Handler;
 
 public class ScaleGestureListenerImpl implements ScaleGestureDetector.OnScaleGestureListener {
     public Boolean scaleInProgress = false;
-    private ScreenView _screenView;
+    private FrameLayout _screenView;
 
-    public ScaleGestureListenerImpl(ScreenView screenView) {
+    public ScaleGestureListenerImpl(FrameLayout screenView) {
         this._screenView = screenView;
+    }
+
+    public Boolean getScaleInProgress() {
+        return scaleInProgress;
+    }
+
+    public void setScaleInProgress(Boolean scaleInProgress) {
+        this.scaleInProgress = scaleInProgress;
     }
 
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
         float scaleFactor = detector.getScaleFactor();
-        scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
-        _screenView.setScaleX(scaleFactor);
-        _screenView.setScaleY(scaleFactor);
+        this.scale(scaleFactor);
         return true;
+    }
+
+    public void scale(float scaleFactor) {
+        scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
+        this._screenView.setScaleX(scaleFactor);
+        this._screenView.setScaleY(scaleFactor);
     }
 
     @Override
     public boolean onScaleBegin(ScaleGestureDetector detector) {
-        scaleInProgress = true;
+        setScaleInProgress(true);
         return true;
     }
 
@@ -34,7 +45,7 @@ public class ScaleGestureListenerImpl implements ScaleGestureDetector.OnScaleGes
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                scaleInProgress = false;
+                setScaleInProgress(false);
             }
         }, 1500);
     }

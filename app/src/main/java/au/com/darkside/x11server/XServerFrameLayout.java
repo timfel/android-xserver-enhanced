@@ -1,59 +1,97 @@
 package au.com.darkside.x11server;
 
-import android.widget.Toast;
-
-import android.widget.FrameLayout;
-import android.view.ScaleGestureDetector;
+import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.os.Build;
+import android.os.Handler;
 import android.view.MotionEvent;
-import android.content.Context;
-
-import au.com.darkside.x11server.ScaleGestureListenerImpl;
+import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.Toast;
 
 public class XServerFrameLayout extends FrameLayout {
-    private static final String LOG_TAG = "Berara";
-    private ScaleGestureDetector mScaleDetector;
-    private ScaleGestureListenerImpl mScaleListener;
+  private static final String LOG_TAG = "XServerFrameLayout";
 
-    public XServerFrameLayout(Context context) {
-        super(context);
-        init(context);
+  private boolean isNavBarHidden = false;
+  private boolean isTogglingNavBar = false;
+
+  private ScaleGestureDetector mScaleDetector;
+  private ScaleGestureListenerImpl mScaleListener;
+
+  public XServerFrameLayout(Context context) {
+    super(context);
+    init(context);
+  }
+
+  public XServerFrameLayout(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    init(context);
+  }
+
+  public XServerFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+    init(context);
+  }
+
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent event) {
+    super.onInterceptTouchEvent(event);
+    Toast.makeText(getContext(), "Intercepted!", Toast.LENGTH_SHORT).show();
+
+    Log.d(LOG_TAG, "Pointer count: " + event.getPointerCount());
+    
+    if (event.getPointerCount() == 3) {
+      Log.d(LOG_TAG, "onTouch: Three finger touch detected");
+      toggleNavigationBar();
+      return true;
     }
 
-    public XServerFrameLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
-    }
-    public XServerFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init(context);
-    }
-
-    private void init(Context context) {
-        mScaleListener = new ScaleGestureListenerImpl(this);
-        mScaleDetector = new ScaleGestureDetector(context, mScaleListener);
+    mScaleDetector.onTouchEvent(event);
+    if (mScaleListener.scaleInProgress == true) {
+      Toast.makeText(getContext(), "mScaleListener.scaleInProgress is true", Toast.LENGTH_SHORT)
+          .show();
+      Log.d(LOG_TAG, "mScaleListener.scaleInProgress is true");
+      return true;
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        Log.d(LOG_TAG, "Pointer count: " + event.getPointerCount());
-        // Toast.makeText(getContext(), "Touch event detected", Toast.LENGTH_SHORT).show();
-        Toast.makeText(getContext(), "Pointer count: " + event.getPointerCount(), Toast.LENGTH_SHORT).show();
+    return false;
+  }
 
-        if (event.getPointerCount() == 3) {
-                    Toast.makeText(getContext(), "onTouch: Three finger touch detected", Toast.LENGTH_SHORT).show();
-                    // toggleNavigationBar();
-                    return false;
+  private void toggleNavigationBar() {
+        if (isTogglingNavBar) {
+            return;
         }
 
-        mScaleDetector.onTouchEvent(event);
-        if (mScaleListener.scaleInProgress == true) {
-            Toast.makeText(getContext(), "mScaleListener.scaleInProgress is true", Toast.LENGTH_SHORT).show();
-            // Log.d(LOG_TAG, "mScaleListener.scaleInProgress is true");
-            return false;
+        isTogglingNavBar = true;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (!isNavBarHidden) {
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                isNavBarHidden = true;
+            } else {
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+                isNavBarHidden = false;
+            }
         }
 
-        return super.onTouchEvent(event);
+        // Reset the flag after a delay
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                isTogglingNavBar = false;
+            }
+        }, 500); // 500ms delay
     }
+
+  private void init(Context context) {
+    mScaleListener = new ScaleGestureListenerImpl(this);
+    mScaleDetector = new ScaleGestureDetector(context, mScaleListener);
+  }
 }

@@ -48,9 +48,6 @@ import java.lang.Math;
  */
 public class ScreenView extends View {
     private static final String LOG_TAG = "ScreenView";
-
-    private boolean isNavBarHidden = false;
-    private boolean isTogglingNavBar = false;
    
     private interface PendingEvent {
         public void run();
@@ -530,37 +527,6 @@ public class ScreenView extends View {
         int deviceHeight = displayMetrics.heightPixels;
         initializeXserver(deviceWidth, deviceHeight);
 
-    }
-
-    private void toggleNavigationBar() {
-        if (isTogglingNavBar) {
-            return;
-        }
-
-        isTogglingNavBar = true;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (!isNavBarHidden) {
-                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-                isNavBarHidden = true;
-            } else {
-                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-                isNavBarHidden = false;
-            }
-        }
-
-        // Reset the flag after a delay
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                isTogglingNavBar = false;
-            }
-        }, 500); // 500ms delay
     }
 
     /**

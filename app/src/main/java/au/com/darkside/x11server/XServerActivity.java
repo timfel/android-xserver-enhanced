@@ -13,6 +13,8 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
@@ -86,6 +88,13 @@ public class XServerActivity extends Activity {
     private int _port = DEFAULT_PORT;
     private String _portDescription = PORT_DESC_PRE + DEFAULT_PORT;
     private Process _windowManager;
+
+    private BroadcastReceiver stopReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            XServerActivity.this.finish();
+        }
+    };
 
     /**
      * Called when the activity is first created.
@@ -162,6 +171,7 @@ public class XServerActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         startService(new Intent(this, XServerService.class));
+        registerReceiver(stopReceiver, new IntentFilter("StopXServerActivity"));
 
         /*
          * Create notification channel as it required for notifications on Android >= 8
@@ -169,7 +179,7 @@ public class XServerActivity extends Activity {
          */
         if (Build.VERSION.SDK_INT >= 26) {
             CharSequence name = "Default channel";
-            String description = "Default notification channel of XServer demo";
+            String description = "Default notification channel of XServer";
             int importance = 3; // default importance
 
             try {
@@ -188,7 +198,7 @@ public class XServerActivity extends Activity {
                 Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
             }
         }
-
+        
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder nb = new Notification.Builder(this)
             .setSmallIcon(android.R.drawable.ic_menu_view)
@@ -196,6 +206,12 @@ public class XServerActivity extends Activity {
             .setContentText("XServer running in background.")
             .setContentIntent(pendingIntent)
             .setOngoing(true);
+
+        Intent stopIntent = new Intent("StopXServerActivity");
+        PendingIntent stopPendingIntent = PendingIntent.getBroadcast(this, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        nb.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Exit", stopPendingIntent);
+
 
         if (Build.VERSION.SDK_INT >= 26) {
             try {
@@ -219,6 +235,8 @@ public class XServerActivity extends Activity {
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(1);
+
+        unregisterReceiver(stopReceiver);
     }
 
     /**

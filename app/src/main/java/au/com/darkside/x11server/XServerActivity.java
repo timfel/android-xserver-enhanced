@@ -208,73 +208,7 @@ public class XServerActivity extends Activity {
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(1, nb.build());
     }
-/*
-    // @Override
-                public boolean onScaler(ScaleGestureDetector detector) {
-                    float scaleFactor = detector.getScaleFactor();
-                    scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
-                    _screenView.setScaleX(scaleFactor);
-                    _screenView.setScaleY(scaleFactor);
-                    return true;
-                }
 
-*/
-    /**
-     * Called when the activity resumes.
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        // NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        // manager.cancel(1);
-        //_wakeLock.acquire();
-    }
-
-    /**
-     * Called when the activity pauses.
-     */
-    @Override
-    public void onPause() {
-        super.onPause();
-        /*
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, getIntent(),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Builder nb = new Notification.Builder(this)
-                .setSmallIcon(android.R.drawable.ic_menu_view)
-                .setContentTitle("Running!")
-                .setContentText("XServer running in background.")
-                .setContentIntent(pendingIntent)
-                .setOngoing(true);
-        */
-
-        /*
-         * Set notification channel as it required for notifications on Android >= 8
-         * Use reflection to stay backward compatible with sdk provided by debian
-         */
-        /*
-        if (Build.VERSION.SDK_INT >= 26) {
-            try {
-                nb.getClass().getMethod("setChannelId", String.class).invoke(nb, NOTIFICATION_CHANNEL_DEFAULT);
-            } catch (Exception e) {
-                Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
-            }
-        }
-
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(1, nb.build());
-        */
-
-        // _wakeLock.release();
-    }
-/*
-    @Override
-public boolean onTouchEvent(MotionEvent event) {
-        Toast.makeText(this, "XServerActivity: onTouchEvent is caught!", Toast.LENGTH_SHORT).show();
-        Log.d("XServerActivity", "onTouchEvent is caught!");
-    scaleGestureDetector.onTouchEvent(event);
-    return true;
-}
-*/
     /**
      * Called when the activity is destroyed.
      */

@@ -317,7 +317,7 @@ public class ScreenView extends View {
         setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // do nothing
+               Log.d("setOnTouchListener", "Touch event: " + v);
             }
         });
 
@@ -562,7 +562,8 @@ public class ScreenView extends View {
         if (mScaleListener.scaleInProgress) {
             return true;
         }
-        return super.onTouchEvent(event);
+        super.onTouchEvent(event);
+        return true;
     }
 
     /**

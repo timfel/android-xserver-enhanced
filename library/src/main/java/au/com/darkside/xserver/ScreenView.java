@@ -289,22 +289,7 @@ public class ScreenView extends View {
                  * _xPrev = x;
                  * _yPrev = y;
                  */
-/*
-                if (event.getPointerCount() == 3) {
-                    // Log.d(LOG_TAG, "onTouch: Three finger touch detected");
-                    toggleNavigationBar();
-                    return false;
-                }
 
-                if (mScaleListener != null) {
-                    mScaleDetector.onTouchEvent(event);
-        if (mScaleListener.scaleInProgress == true) {
-            Log.d(LOG_TAG, "mScaleListener.scaleInProgress is true");
-            return false;
-        }
-        Log.d(LOG_TAG, "mScaleListener.scaleInProgress is false");
-    }       
-  */  
     Log.d(LOG_TAG, "Process _xServer touches");
                 synchronized (_xServer) {
                     if (_rootWindow == null)

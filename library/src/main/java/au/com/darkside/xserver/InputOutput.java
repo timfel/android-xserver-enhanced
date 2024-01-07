@@ -1,11 +1,11 @@
 package au.com.darkside.xserver;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-
-import android.util.Log;
 
 /**
  * This class handles buffered bi-directional communications.
@@ -176,21 +176,21 @@ public class InputOutput {
         long n = readByte();
 
         if (_msb) {
-            n = (n << 8) | (long)readByte();
-            n = (n << 8) | (long)readByte();
-            n = (n << 8) | (long)readByte();
-            n = (n << 8) | (long)readByte();
-            n = (n << 8) | (long)readByte();
-            n = (n << 8) | (long)readByte();
-            n = (n << 8) | (long)readByte();
+            n = (n << 8) | (long) readByte();
+            n = (n << 8) | (long) readByte();
+            n = (n << 8) | (long) readByte();
+            n = (n << 8) | (long) readByte();
+            n = (n << 8) | (long) readByte();
+            n = (n << 8) | (long) readByte();
+            n = (n << 8) | (long) readByte();
         } else {
-            n |= (long)readByte() << 8;
-            n |= (long)readByte() << 16;
-            n |= (long)readByte() << 24;
-            n |= (long)readByte() << 32;
-            n |= (long)readByte() << 40;
-            n |= (long)readByte() << 48;
-            n |= (long)readByte() << 56;
+            n |= (long) readByte() << 8;
+            n |= (long) readByte() << 16;
+            n |= (long) readByte() << 24;
+            n |= (long) readByte() << 32;
+            n |= (long) readByte() << 40;
+            n |= (long) readByte() << 48;
+            n |= (long) readByte() << 56;
         }
 
         return n;
@@ -204,9 +204,9 @@ public class InputOutput {
      */
     public void readSkip(int n) throws IOException {
         int avaiable = _inStream.available();
-        if(n > avaiable) // to avoid blocking
+        if (n > avaiable) // to avoid blocking
             n = avaiable;
-        while (n > 0) 
+        while (n > 0)
             n -= _inStream.skip(n);
     }
 
@@ -322,7 +322,7 @@ public class InputOutput {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    synchronized(this){
+                    synchronized (this) {
                         _outStream.flush();
                     }
                 } catch (IOException e) {
@@ -331,9 +331,9 @@ public class InputOutput {
             }
         });
         t.start();
-        try{
+        try {
             t.join();
-        }catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Log.e("FATAL", e.toString());
         }
     }

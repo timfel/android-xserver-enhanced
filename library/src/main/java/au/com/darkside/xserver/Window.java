@@ -14,8 +14,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
-import au.com.darkside.xserver.Xext.XShape;
 import au.com.darkside.xserver.Xext.Extensions;
+import au.com.darkside.xserver.Xext.XShape;
 
 /**
  * This class implements an X window.
@@ -170,7 +170,7 @@ public class Window extends Resource {
 
     /**
      * Flag this window as server only.
-     * 
+     *
      * @param b True if this is a hidden server only window.
      */
     public void setIsServerWindow(boolean b) {
@@ -924,7 +924,7 @@ public class Window extends Resource {
             Set<Client> sc = _clientMasks.keySet();
 
             _eventMask = 0;
-            for (Client c : sc){
+            for (Client c : sc) {
                 if (c == null) continue;
                 _eventMask |= _clientMasks.get(c);
             }
@@ -2738,7 +2738,7 @@ public class Window extends Resource {
                         Vector<Client> sc;
 
                         sc = getSelectingClients(EventCode.MaskExposure);
-                        if (sc != null) for (Client c : sc){
+                        if (sc != null) for (Client c : sc) {
                             if (c == null) continue;
                             EventCode.sendExpose(c, this, x, y, width, height, 0);
                         }
@@ -2773,11 +2773,10 @@ public class Window extends Resource {
                 }
                 break;
             default:
-                if(opcode<0) {
+                if (opcode < 0) {
                     redraw = false;
                     Extensions.processRequest(_xServer, client, opcode, arg, bytesRemaining);
-                }
-                else{
+                } else {
                     io.readSkip(bytesRemaining);
                     ErrorCode.write(client, ErrorCode.Implementation, opcode, 0);
                 }
@@ -2874,14 +2873,16 @@ public class Window extends Resource {
 
     /**
      * Allows adding a new property to this window.
+     *
      * @param p property to add.
      */
-    public void addProperty(Property p){
-        _properties.put(p.getId(),p);
+    public void addProperty(Property p) {
+        _properties.put(p.getId(), p);
     }
 
     /**
      * Returns a property assigned to this window.
+     *
      * @param id Id of the property.
      * @return Property or null if not found.
      */

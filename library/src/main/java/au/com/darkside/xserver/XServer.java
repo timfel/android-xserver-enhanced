@@ -22,7 +22,6 @@ import java.util.Vector;
 
 import au.com.darkside.xserver.Xext.Extensions;
 import au.com.darkside.xserver.Xext.XShape;
-import au.com.darkside.xserver.Xext.XSync;
 
 /**
  * This class implements an X Windows server.
@@ -128,21 +127,21 @@ public class XServer {
 
         cmap.setInstalled(true);
         addResource(cmap);
-        
+
         _rootVisual = new Visual(1, _default_depth);
         Atom.registerPredefinedAtoms(this);
 
         _timestamp = System.currentTimeMillis();
     }
 
-    public void setOnStartListener(OnXSeverStartListener l){
+    public void setOnStartListener(OnXSeverStartListener l) {
         _onStartListener = l;
     }
 
-     
-    public boolean isStarted(){
-            return _acceptThread != null;
-        }
+
+    public boolean isStarted() {
+        return _acceptThread != null;
+    }
 
     /**
      * Start the thread that listens on the socket.
@@ -180,7 +179,7 @@ public class XServer {
 
         resetScreenSaver();
 
-        if(_onStartListener != null) _onStartListener.onStart();
+        if (_onStartListener != null) _onStartListener.onStart();
 
         return true;
     }
@@ -524,11 +523,11 @@ public class XServer {
      * @param id The resource ID.
      */
     public int nextFreeResourceId() {
-        int maxKey = 0;  
+        int maxKey = 0;
         for (int cur : _resources.keySet())
             if (cur > maxKey)
-                maxKey = cur;  
-        return maxKey++; 
+                maxKey = cur;
+        return maxKey++;
     }
 
     /**

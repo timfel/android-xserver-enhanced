@@ -7,7 +7,6 @@ import au.com.darkside.xserver.ErrorCode;
 import au.com.darkside.xserver.InputOutput;
 import au.com.darkside.xserver.Util;
 import au.com.darkside.xserver.XServer;
-import au.com.darkside.xserver.Xext.XKeyboard;
 
 /**
  * This class handles requests relating to extensions.
@@ -24,7 +23,7 @@ public class Extensions {
     public static final byte Shape = -125;
     public static final byte XKEYBOARD = -123;
 
-    static public void Initialize(){
+    static public void Initialize() {
         XSync.Initialize();
     }
 
@@ -81,11 +80,11 @@ public class Extensions {
                 XTest.processRequest(xServer, client, opcode, arg, bytesRemaining);
                 break;
             case XKEYBOARD:
-            //    XKeyboard.processRequest(xServer, client, opcode, arg, bytesRemaining);
-            //    break;
+                //    XKeyboard.processRequest(xServer, client, opcode, arg, bytesRemaining);
+                //    break;
             case Sync:
-            //    XSync.processRequest(xServer, client, opcode, arg, bytesRemaining);
-            //    break;
+                //    XSync.processRequest(xServer, client, opcode, arg, bytesRemaining);
+                //    break;
             default:
                 io.readSkip(bytesRemaining);    // Not implemented.
                 ErrorCode.write(client, ErrorCode.Implementation, opcode, 0);

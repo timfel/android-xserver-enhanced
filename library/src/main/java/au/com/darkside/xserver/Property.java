@@ -30,9 +30,10 @@ public class Property {
 
     /**
      * Allows setting a callback object to listen on property change events.
+     *
      * @param l Callback object to listen on property change events
      */
-    public void setOnPropertyChangedListener(OnPropertyChangedListener l){
+    public void setOnPropertyChangedListener(OnPropertyChangedListener l) {
         _onPropertyChange = l;
     }
 
@@ -72,6 +73,7 @@ public class Property {
 
     /**
      * Allows setting the data held by this property.
+     *
      * @param d Data to set.
      */
     public void setData(byte[] d) {
@@ -87,6 +89,7 @@ public class Property {
 
     /**
      * Allows setting the type of this property.
+     *
      * @param id Atom ID of atom describing this property type.
      */
     public void setType(int id) {
@@ -95,6 +98,7 @@ public class Property {
 
     /**
      * Allows setting the data held by this property.
+     *
      * @param d Data to set as string, will be converted to bytes.
      */
     public void setData(String d) {
@@ -241,7 +245,8 @@ public class Property {
         }
 
         // trigger callback for event change if existent
-        if(p._onPropertyChange != null) p._onPropertyChange.onPropertyChanged(p._data, xServer.getAtom(tid));
+        if (p._onPropertyChange != null)
+            p._onPropertyChange.onPropertyChanged(p._data, xServer.getAtom(tid));
     }
 
     /**

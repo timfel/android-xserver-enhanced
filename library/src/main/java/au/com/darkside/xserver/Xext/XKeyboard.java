@@ -1,13 +1,12 @@
 package au.com.darkside.xserver.Xext;
 
-import au.com.darkside.xserver.XServer;
-
 import java.io.IOException;
 
 import au.com.darkside.xserver.Client;
+import au.com.darkside.xserver.XServer;
 
 public class XKeyboard {
-    
+
     // TODO: opcodes.... /
 
     /**

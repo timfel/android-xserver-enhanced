@@ -1,9 +1,8 @@
 package au.com.darkside.xserver;
 
 import java.io.IOException;
-
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**

@@ -20,15 +20,15 @@ public class Keyboard {
     private int[] _keyboardMapping = null;
     private byte _keycodesPerModifier = 8;
     private byte[] _keymap = new byte[32];
-	private byte[] _modifierMapping = new byte[] {
-		KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT, 0, 0, 0, 0, 0, 0,  // 1
-		0, 0, 0, 0, 0, 0, 0, 0, // 2
-		KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_CTRL_RIGHT, 0, 0, 0, 0, 0, 0, // 4
-		KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT, 0, 0, 0, 0, 0, 0, // 8
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, // 20
-		KeyEvent.KEYCODE_META_LEFT, KeyEvent.KEYCODE_META_RIGHT, 0, 0, 0, 0, 0, 0, // 40
-		0, 0, 0, 0, 0, 0, 0, 0  // 80
+    private byte[] _modifierMapping = new byte[]{
+            KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT, 0, 0, 0, 0, 0, 0,  // 1
+            0, 0, 0, 0, 0, 0, 0, 0, // 2
+            KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_CTRL_RIGHT, 0, 0, 0, 0, 0, 0, // 4
+            KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT, 0, 0, 0, 0, 0, 0, // 8
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, // 20
+            KeyEvent.KEYCODE_META_LEFT, KeyEvent.KEYCODE_META_RIGHT, 0, 0, 0, 0, 0, 0, // 40
+            0, 0, 0, 0, 0, 0, 0, 0  // 80
     };
 
     private static final int DefaultBellPercent = 50;
@@ -291,20 +291,20 @@ public class Keyboard {
                         io.readSkip(bytesRemaining);
                         ErrorCode.write(client, ErrorCode.Length, opcode, 0);
                     } else if (kspkc > _keysymsPerKeycode) {
-                        io.readSkip (bytesRemaining);
+                        io.readSkip(bytesRemaining);
                         ErrorCode.write(client, ErrorCode.Value, opcode, 0);
                     } else {
                         int numKeycodes = keycode + keycodeCount;
-                        if (numKeycodes > _numKeycodes ) {
-                            int [] newKeyboardMapping = new int[(numKeycodes - getMinimumKeycode ()) * _keysymsPerKeycode];
-                            System.arraycopy(_keyboardMapping, 0, newKeyboardMapping, 0, (_numKeycodes - getMinimumKeycode ()) * _keysymsPerKeycode);
+                        if (numKeycodes > _numKeycodes) {
+                            int[] newKeyboardMapping = new int[(numKeycodes - getMinimumKeycode()) * _keysymsPerKeycode];
+                            System.arraycopy(_keyboardMapping, 0, newKeyboardMapping, 0, (_numKeycodes - getMinimumKeycode()) * _keysymsPerKeycode);
                             _keyboardMapping = newKeyboardMapping;
                             _numKeycodes = numKeycodes;
                         }
 
                         for (int key = 0; key < keycodeCount; key++)
                             for (int sym = 0; sym < kspkc; sym++)
-                                _keyboardMapping[(keycode - getMinimumKeycode () + key) * _keysymsPerKeycode + sym] = io.readInt ();	// Keysyms.
+                                _keyboardMapping[(keycode - getMinimumKeycode() + key) * _keysymsPerKeycode + sym] = io.readInt();    // Keysyms.
 
                         xServer.sendMappingNotify(1, keycode, keycodeCount);
                     }
@@ -380,23 +380,23 @@ public class Keyboard {
                     io.readSkip(bytesRemaining);
                     ErrorCode.write(client, ErrorCode.Length, opcode, 0);
                 } else {    // Not supported. Always fails.
-					int diff = getMinimumKeycodeDiff();
-					int status = 0;
+                    int diff = getMinimumKeycodeDiff();
+                    int status = 0;
 
-					byte[] modifierMapping = new byte[bytesRemaining];
-					for (int i = 0; i < bytesRemaining ; i++) {
-						int keycode = io.readByte();
-						int offset = keycode / 8;
-						byte mask = (byte) (1 << (keycode & 7));
-						if ((_keymap[offset] & mask) == mask)
-							status = 2; // If a modifier is pressed
-						modifierMapping[i] = (byte) (keycode - diff);
-					}
+                    byte[] modifierMapping = new byte[bytesRemaining];
+                    for (int i = 0; i < bytesRemaining; i++) {
+                        int keycode = io.readByte();
+                        int offset = keycode / 8;
+                        byte mask = (byte) (1 << (keycode & 7));
+                        if ((_keymap[offset] & mask) == mask)
+                            status = 2; // If a modifier is pressed
+                        modifierMapping[i] = (byte) (keycode - diff);
+                    }
 
-					if (status == 0) {
-						_modifierMapping = modifierMapping;
-						xServer.sendMappingNotify (0, 0, 0);
-					}
+                    if (status == 0) {
+                        _modifierMapping = modifierMapping;
+                        xServer.sendMappingNotify(0, 0, 0);
+                    }
                     synchronized (io) {
                         Util.writeReplyHeader(client, (byte) status);
                         io.writeInt(0);    // Reply length.
@@ -471,11 +471,11 @@ public class Keyboard {
         int diff = getMinimumKeycodeDiff();
         int state = 0;
 
-        for (int m = 0 ; m < 8; m++) {
-            for (int i = 0 ; i < 8 && _modifierMapping[m * 8 + i] != 0xff ; i++) {
-                byte		keycode = (byte) (_modifierMapping[m * 8 + i] + diff);
-                int			offset = keycode / 8;
-                byte		mask = (byte) (1 << (keycode & 7));
+        for (int m = 0; m < 8; m++) {
+            for (int i = 0; i < 8 && _modifierMapping[m * 8 + i] != 0xff; i++) {
+                byte keycode = (byte) (_modifierMapping[m * 8 + i] + diff);
+                int offset = keycode / 8;
+                byte mask = (byte) (1 << (keycode & 7));
                 if ((_keymap[offset] & mask) == mask)
                     state |= 1 << m;
             }

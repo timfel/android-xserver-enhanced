@@ -47,31 +47,32 @@ public class Selection {
 
     /**
      * Allows transfering a selection to a (window-)property.
-     * @param xServer xServer to perform this action on.
+     *
+     * @param xServer           xServer to perform this action on.
      * @param fromSelectionAtom Atom associated with the source selection. (i.e. "CLIPBOARD")
-     * @param toPropertyAtom Atom associated with the target property (i.e. "CLIPBOARD" of target window).
-     * @param toWindow  Window holding toPropertyAtom. (the propertyAtom can be reused, so we need to specify the window which holds the property this atom is associated with)
-     * @param transferTypeAtom Atom describing the clipboard type (i.e. "UTF8_STRING").
+     * @param toPropertyAtom    Atom associated with the target property (i.e. "CLIPBOARD" of target window).
+     * @param toWindow          Window holding toPropertyAtom. (the propertyAtom can be reused, so we need to specify the window which holds the property this atom is associated with)
+     * @param transferTypeAtom  Atom describing the clipboard type (i.e. "UTF8_STRING").
      */
-    public static void transferSelectionRequest(XServer xServer, Atom fromSelectionAtom, Atom toPropertyAtom, Window toWindow, Atom transferTypeAtom){
+    public static void transferSelectionRequest(XServer xServer, Atom fromSelectionAtom, Atom toPropertyAtom, Window toWindow, Atom transferTypeAtom) {
         Selection srcSelection = xServer.getSelection(fromSelectionAtom.getId());
-        if(srcSelection == null)
+        if (srcSelection == null)
             return; // selection not owned by any client
-        try{
-            if(srcSelection._owner != null) {
+        try {
+            if (srcSelection._owner != null) {
                 EventCode.sendSelectionRequest(srcSelection._owner, xServer.getTimestamp(), srcSelection._ownerWindow, toWindow, fromSelectionAtom, transferTypeAtom, toPropertyAtom);
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             // silently fail
         }
     }
 
     /**
      * Allows changing/setting the owner of a selection.
-     * @param xServer xServer to perform this action on.
+     *
+     * @param xServer       xServer to perform this action on.
      * @param selectionAtom Atom associated with the selection. (i.e. "CLIPBOARD")
-     * @param owner New owner window.
+     * @param owner         New owner window.
      */
     public static void setSelectionOwner(XServer xServer, Atom selectionAtom, Window owner) {
         Selection sel = xServer.getSelection(selectionAtom.getId());
@@ -82,11 +83,10 @@ public class Selection {
         }
 
         // remove old owner
-        if (sel._owner != null && sel._owner != owner.getClient()){
-            try{
+        if (sel._owner != null && sel._owner != owner.getClient()) {
+            try {
                 EventCode.sendSelectionClear(sel._owner, sel._lastChangeTime, owner, selectionAtom);
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 // silently fail
             }
         }
@@ -210,10 +210,10 @@ public class Selection {
 
         sel._owner = (w != null) ? client : null;
         if (xServer.getScreen().hasSharedClipboard() && aid == xServer.findAtom("CLIPBOARD").getId())
-            transferSelectionRequest(xServer, xServer.findAtom("CLIPBOARD"), xServer.findAtom("CLIPBOARD"), xServer.getScreen().getSharedClipboardWindow() , xServer.findAtom("UTF8_STRING"));
+            transferSelectionRequest(xServer, xServer.findAtom("CLIPBOARD"), xServer.findAtom("CLIPBOARD"), xServer.getScreen().getSharedClipboardWindow(), xServer.findAtom("UTF8_STRING"));
         else if (xServer.getScreen().hasSharedClipboard() && aid == xServer.findAtom("PRIMARY").getId())
-            transferSelectionRequest(xServer, xServer.findAtom("PRIMARY"), xServer.findAtom("PRIMARY"), xServer.getScreen().getSharedClipboardWindow() , xServer.findAtom("UTF8_STRING"));
-        
+            transferSelectionRequest(xServer, xServer.findAtom("PRIMARY"), xServer.findAtom("PRIMARY"), xServer.getScreen().getSharedClipboardWindow(), xServer.findAtom("UTF8_STRING"));
+
 
     }
 
@@ -275,16 +275,16 @@ public class Selection {
 
         Window ownerWindow = sel != null ? sel._ownerWindow : null;
         // move the property to the client the dirty way,... some interfaces would make sense here
-        if(ownerWindow != null && ownerWindow.isServerWindow() && owner == null){
+        if (ownerWindow != null && ownerWindow.isServerWindow() && owner == null) {
             Property target = w.getProperty(pid);
-            if(target == null){
-                target = new Property(pid, tid, (byte)8);
+            if (target == null) {
+                target = new Property(pid, tid, (byte) 8);
                 w.addProperty(target);
             }
             target.setData(sel._ownerWindow.getProperty(sid).getData());
             target.setType(tid);
         }
-        
+
         if (owner != null) {
             try {
                 EventCode.sendSelectionRequest(owner, time, sel._ownerWindow, w, selectionAtom, targetAtom, propertyAtom);

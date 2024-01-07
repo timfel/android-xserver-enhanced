@@ -6,7 +6,6 @@ import android.graphics.Path;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Region;
 
 import java.io.IOException;
 
@@ -177,7 +176,7 @@ public class GContext extends Resource {
         if (_clipRectangles == null) return;
 
         if (_clipRectangles.length == 0) canvas.clipRect(0, 0, 0, 0);
-        else for (Rect r : _clipRectangles){
+        else for (Rect r : _clipRectangles) {
             canvas.save();
             canvas.clipRect(r);
             canvas.restore();

@@ -1,43 +1,37 @@
 package au.com.darkside.xserver;
 
-// TODO: drop toast imports
-import android.widget.Toast;
 
+import android.app.Service;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.ScaleGestureDetector;
-import android.view.MenuItem;
-import android.view.WindowManager;
-import android.view.inputmethod.InputConnection;
-import android.util.DisplayMetrics;
-import android.view.inputmethod.EditorInfo;
-import android.text.InputType;
 import android.os.Build;
-import android.content.ClipboardManager;
-import android.content.ClipData;
-import android.app.Instrumentation;
-import android.os.Looper;
 import android.os.Handler;
-import android.view.inputmethod.InputMethodManager;
-import android.app.Service;
+import android.os.Looper;
+import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
-// import java.util.List;
 import java.util.Vector;
-import java.nio.charset.StandardCharsets;
-import java.lang.Math;
 
 /**
  * This class implements an X Windows screen.
@@ -125,7 +119,7 @@ public class ScreenView extends View {
         private boolean mGrabPointerOwnerEvents;
 
         public PendingGrabButtonNotify(Window w, boolean pressed, int motionX, int motionY, int button,
-                int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
+                                       int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
             mWindow = w;
             mPressed = pressed;
             mMotionX = motionX;
@@ -153,7 +147,7 @@ public class ScreenView extends View {
         private boolean mGrabPointerOwnerEvents;
 
         public PendingGrabMotionNotify(Window w, int x, int y, int buttons, int grabEventMask, Client grabPointerClient,
-                boolean grabPointerOwnerEvents) {
+                                       boolean grabPointerOwnerEvents) {
             mWindow = w;
             mX = x;
             mY = y;
@@ -183,7 +177,7 @@ public class ScreenView extends View {
         private boolean mGrabKeyboardOwnerEvents;
 
         public PendingGrabKeyNotify(Window w, boolean pressed, int motionX, int motionY, int keycode,
-                Client grabKeyboardClient, boolean grabKeyboardOwnerEvents) {
+                                    Client grabKeyboardClient, boolean grabKeyboardOwnerEvents) {
             mWindow = w;
             mPressed = pressed;
             mMotionX = motionX;
@@ -342,25 +336,25 @@ public class ScreenView extends View {
                 /*
                  * int x = (int) event.getX();
                  * int y = (int) event.getY();
-                 * 
+                 *
                  * // TODO: collibrate screen's average click event process time
                  * sleepThread(95);
-                 * 
+                 *
                  * if (x ==_xPrev && y == _yPrev) {
                  * Log.d(LOG_TAG, "x and y is the same as old position");
                  * if(event.getPointerCount() == 3){
                  * Log.d(LOG_TAG, "onTouch: Three finger touch detected");
                  * toggleNavigationBar();
-                 * 
+                 *
                  * }
                  * return false;
                  * }
-                 * 
+                 *
                  * _xPrev = x;
                  * _yPrev = y;
                  */
 
-    Log.d(LOG_TAG, "Process _xServer touches");
+                Log.d(LOG_TAG, "Process _xServer touches");
                 synchronized (_xServer) {
                     if (_rootWindow == null)
                         return false;
@@ -395,7 +389,7 @@ public class ScreenView extends View {
                 }
 
                 if (_totalMove < 20) { // -- workaround for phones with cheap touchscreens (which will constantly
-                                       // trigger ACTION_MOVE events)
+                    // trigger ACTION_MOVE events)
                     _ignoreLongPress = false;
                     return false; // make longClick Listeners work!
                 }
@@ -611,11 +605,11 @@ public class ScreenView extends View {
      * public WindowInsets onApplyWindowInsets(WindowInsets insets) {
      * int bottomInset = insets.getSystemWindowInsetBottom(); // This is the
      * navigation bar height
-     * 
+     *
      * ViewGroup.LayoutParams layoutParams = getLayoutParams();
      * layoutParams.height = getHeight() - bottomInset;
      * setLayoutParams(layoutParams);
-     * 
+     *
      * return insets;
      * }
      */
@@ -858,14 +852,14 @@ public class ScreenView extends View {
         _sharedClipboardWindow = new Window(_xServer.nextFreeResourceId() + 1, _xServer, null, this, _rootWindow, -1,
                 -1, 1, 1, 0, true, false); // hidden window managing android <-> xServer clipboard
         _sharedClipboardWindow.setIsServerWindow(true); // flag as functional server only window (there is a urgent need
-                                                        // to introduce interfaces..)
+        // to introduce interfaces..)
         _sharedClipboardProperty = new Property(_xServer.findAtom("CLIPBOARD").getId(),
                 _xServer.findAtom("CLIPBOARD").getId(), (byte) 32); // property which will hold the clipboard data
         _sharedClipboardPrimaryProperty = new Property(_xServer.findAtom("PRIMARY").getId(),
                 _xServer.findAtom("PRIMARY").getId(), (byte) 32); // property which will hold the clipboard data
 
         Property.OnPropertyChangedListener cb = new Property.OnPropertyChangedListener() { // -- executed on a per
-                                                                                           // client thread basis
+            // client thread basis
             @Override
             public void onPropertyChanged(byte[] data, Atom type) {
                 switch (type.getName()) {
@@ -1236,7 +1230,7 @@ public class ScreenView extends View {
                     if (!_inhibitBackButton)
                         return false;
                     keycode = 128 - _xServer.getKeyboard().getMinimumKeycodeDiff(); // Special keycode since keycode
-                                                                                    // value 5 is out of range
+                    // value 5 is out of range
                     sendEvent = true;
                     break;
                 case KeyEvent.KEYCODE_MENU:
@@ -1298,7 +1292,7 @@ public class ScreenView extends View {
                     if (!_inhibitBackButton)
                         return false;
                     keycode = 128 - _xServer.getKeyboard().getMinimumKeycodeDiff(); // Special keycode since keycode
-                                                                                    // value 5 is out of range
+                    // value 5 is out of range
                     sendEvent = true;
                     break;
                 case KeyEvent.KEYCODE_MENU:
@@ -1645,7 +1639,7 @@ public class ScreenView extends View {
 
     /**
      * Toggle Arrows As Buttons.
-     *
+     * <p>
      * Switch between key and button events for arrow keys
      *
      * @return new state of switch
@@ -1735,7 +1729,7 @@ public class ScreenView extends View {
         } else if (!propagate) {
             dc = w.getSelectingClients(mask);
         } else {
-            for (;;) {
+            for (; ; ) {
                 if ((dc = w.getSelectingClients(mask)) != null)
                     break;
 
@@ -2055,18 +2049,18 @@ public class ScreenView extends View {
     }
 
     private void callGrabButtonNotify(Window w, boolean pressed, int motionX, int motionY, int button,
-            int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
+                                      int grabEventMask, Client grabPointerClient, boolean grabPointerOwnerEvents) {
         w.grabButtonNotify(pressed, motionX, motionY, button, grabEventMask, grabPointerClient, grabPointerOwnerEvents);
         reflectPointerFreezeNextEvent();
     }
 
     private void callGrabMotionNotify(Window w, int x, int y, int buttons, int grabEventMask, Client grabPointerClient,
-            boolean grabPointerOwnerEvents) {
+                                      boolean grabPointerOwnerEvents) {
         w.grabMotionNotify(x, y, buttons & 0xff00, grabEventMask, grabPointerClient, grabPointerOwnerEvents);
     }
 
     private void callGrabKeyNotify(Window w, boolean pressed, int motionX, int motionY, int keycode,
-            Client grabKeyboardClient, boolean grabKeyboardOwnerEvents) {
+                                   Client grabKeyboardClient, boolean grabKeyboardOwnerEvents) {
         w.grabKeyNotify(pressed, motionX, motionY, keycode, grabKeyboardClient, grabKeyboardOwnerEvents);
         reflectKeyboardFreezeNextEvent();
     }

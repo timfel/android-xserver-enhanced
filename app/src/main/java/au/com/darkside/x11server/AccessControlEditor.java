@@ -20,7 +20,7 @@ import java.util.Set;
 
 /**
  * Editor for the list of hosts allowed to access the X server.
- *
+ * <p>
  * Written by Matthew Kwan - March 2012
  *
  * @author mkwan
@@ -111,7 +111,7 @@ public class AccessControlEditor extends ListActivity implements OnItemClickList
      * Convert a hexadecimal IP address into a human-readable dot-separated
      * format.
      *
-     * @param host    The host IP address, in hexadecimal format.
+     * @param host The host IP address, in hexadecimal format.
      * @return The host IP address in dot-separated format.
      */
     private static String hostToString(String host) {
@@ -151,7 +151,7 @@ public class AccessControlEditor extends ListActivity implements OnItemClickList
      * Convert a human-readable dot-separated IP address into hexadecimal.
      * Return null if there's a parse error.
      *
-     * @param s    The host IP address, in dot-separated format.
+     * @param s The host IP address, in dot-separated format.
      * @return The host IP address in hexadecimal format, or null.
      */
     private static String stringToHost(String s) {

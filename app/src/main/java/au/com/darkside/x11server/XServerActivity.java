@@ -1,36 +1,48 @@
 package au.com.darkside.x11server;
 
-import android.view.ScaleGestureDetector;
-import android.view.MotionEvent;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Service;
-import android.app.NotificationManager;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.util.DisplayMetrics;
+import android.content.pm.ActivityInfo;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.view.View;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import au.com.darkside.xserver.ScreenView;
+import au.com.darkside.xserver.XServer;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
@@ -38,32 +50,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import au.com.darkside.x11server.XServerFrameLayout;
-import au.com.darkside.xserver.ScreenView;
-import au.com.darkside.xserver.XServer;
-
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.ProcessBuilder;
-import java.lang.Class;
-import java.lang.reflect.Constructor;
-
-import android.util.Log;
-
-import java.io.FileOutputStream;
-import android.content.res.AssetManager;
-
-import java.io.IOException;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-
 /**
  * This activity launches an X server and provides a screen for it.
  *
  * @author Matthew Kwan
  */
 public class XServerActivity extends Activity {
+    private static final String LOG_TAG = "XServerActivity";
+
+    private boolean isNavBarHidden = false;
+    private boolean isTogglingNavBar = false;
+
     private XServer _xServer;
     private ScreenView _screenView;
     private WakeLock _wakeLock;
@@ -155,89 +152,132 @@ public class XServerActivity extends Activity {
             }
         });
 
-        setAccessControl();
-        XServerFrameLayout fl = (XServerFrameLayout) findViewById(R.id.frame);
+    setAccessControl();
+    FrameLayout fl = (FrameLayout) findViewById(R.id.frame);
 
-        _screenView = _xServer.getScreen();
- 
-        fl.addView(_screenView);
-
-        PowerManager pm;
-
-        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        _wakeLock = pm.newWakeLock(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, getPackageName() + ":XServer");
-
-        // make window fullscreen
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        startService(new Intent(this, XServerService.class));
-        registerReceiver(stopReceiver, new IntentFilter("StopXServerActivity"));
-
-        /*
-         * Create notification channel as it required for notifications on Android >= 8
-         * Use reflection to stay backward compatible with sdk provided by debian
-         */
-        if (Build.VERSION.SDK_INT >= 26) {
-            CharSequence name = "Default channel";
-            String description = "Default notification channel of XServer";
-            int importance = 3; // default importance
-
-            try {
-                Class nc = Class.forName("android.app.NotificationChannel");
-                Object ncObj = nc.getConstructor(new Class[] { String.class, CharSequence.class, int.class })
-                        .newInstance(NOTIFICATION_CHANNEL_DEFAULT, name, importance);
-                nc.getMethod("setDescription", String.class).invoke(ncObj, description);
-                nc.getMethod("setVibrationPattern", long[].class).invoke(ncObj, new long[] { 0 }); // enableVibration is
-                                                                                                   // bugged, use this
-                                                                                                   // as workaround
-                nc.getMethod("enableVibration", boolean.class).invoke(ncObj, true);
-                nc.getMethod("enableLights", boolean.class).invoke(ncObj, false);
-                NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                manager.getClass().getMethod("createNotificationChannel", nc).invoke(manager, ncObj);
-            } catch (Exception e) {
-                Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
+    _screenView = _xServer.getScreen();
+    _screenView.setOnTouchCallback(
+        new ScreenView.ScreenViewOnTouchCallback() {
+          @Override
+          public boolean onTouch(View v, MotionEvent event) {
+            Log.d(LOG_TAG, "Pointer count: " + event.getPointerCount());
+            
+            if (event.getPointerCount() == 4) {
+                Log.d(LOG_TAG, "onTouch: Four finger touch detected. Reset zoom");
+              _screenView.mScaleListener.resetZoom();
+              return false;
             }
-        }
-        
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Builder nb = new Notification.Builder(this)
+             else if (event.getPointerCount() == 3) {
+              Log.d(LOG_TAG, "onTouch: Three finger touch detected. Toggle nav bar");
+              toggleNavigationBar();
+              return false;
+            }
+              /*
+            } else if (event.getPointerCount() > 1) {
+                return false;
+            }
+            */
+           Log.d(LOG_TAG, "onTouch returning true.");
+            return true;
+          }
+        });
+
+    fl.addView(_screenView);
+
+    PowerManager pm;
+    pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    _wakeLock =
+        pm.newWakeLock(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, getPackageName() + ":XServer");
+
+    getWindow()
+        .setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+    startService(new Intent(this, XServerService.class));
+    registerReceiver(stopReceiver, new IntentFilter("StopXServerActivity"));
+
+    initNotifications();
+  }
+
+  /** Called when the activity is destroyed. */
+  @Override
+  public void onDestroy() {
+    _xServer.stop();
+    super.onDestroy();
+
+    NotificationManager manager =
+        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    manager.cancel(1);
+
+    unregisterReceiver(stopReceiver);
+  }
+
+  /**
+   * Initializes the notifications for the application.
+   *
+   * @return None
+   */
+  public void initNotifications() {
+    /*
+     * Create notification channel as it required for notifications on Android >= 8
+     * Use reflection to stay backward compatible with sdk provided by debian
+     */
+    if (Build.VERSION.SDK_INT >= 26) {
+      CharSequence name = "Default channel";
+      String description = "Default notification channel of XServer";
+      int importance = 3; // default importance
+
+      try {
+        Class nc = Class.forName("android.app.NotificationChannel");
+        Object ncObj =
+            nc.getConstructor(new Class[] {String.class, CharSequence.class, int.class})
+                .newInstance(NOTIFICATION_CHANNEL_DEFAULT, name, importance);
+        nc.getMethod("setDescription", String.class).invoke(ncObj, description);
+        nc.getMethod("setVibrationPattern", long[].class)
+            .invoke(ncObj, new long[] {0}); // enableVibration is
+        // bugged, use this
+        // as workaround
+        nc.getMethod("enableVibration", boolean.class).invoke(ncObj, true);
+        nc.getMethod("enableLights", boolean.class).invoke(ncObj, false);
+        NotificationManager manager =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.getClass().getMethod("createNotificationChannel", nc).invoke(manager, ncObj);
+      } catch (Exception e) {
+        Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
+      }
+    }
+
+    PendingIntent pendingIntent =
+        PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
+    Notification.Builder nb =
+        new Notification.Builder(this)
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setContentTitle("Running!")
             .setContentText("XServer running in background.")
             .setContentIntent(pendingIntent)
             .setOngoing(true);
 
-        Intent stopIntent = new Intent("StopXServerActivity");
-        PendingIntent stopPendingIntent = PendingIntent.getBroadcast(this, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+    Intent stopIntent = new Intent("StopXServerActivity");
+    PendingIntent stopPendingIntent =
+        PendingIntent.getBroadcast(this, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        nb.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Exit", stopPendingIntent);
+    nb.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Exit", stopPendingIntent);
 
-
-        if (Build.VERSION.SDK_INT >= 26) {
-            try {
-                nb.getClass().getMethod("setChannelId", String.class).invoke(nb, NOTIFICATION_CHANNEL_DEFAULT);
-            } catch (Exception e) {
-                Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
-            }
-        }
-
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(1, nb.build());
+    if (Build.VERSION.SDK_INT >= 26) {
+      try {
+        nb.getClass()
+            .getMethod("setChannelId", String.class)
+            .invoke(nb, NOTIFICATION_CHANNEL_DEFAULT);
+      } catch (Exception e) {
+        Log.e("FATAL", "Could not reflect Android SDK >= 26", e);
+      }
     }
 
-    /**
-     * Called when the activity is destroyed.
-     */
-    @Override
-    public void onDestroy() {
-        _xServer.stop();
-        super.onDestroy();
-
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(1);
-
-        unregisterReceiver(stopReceiver);
-    }
+    NotificationManager manager =
+        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    manager.notify(1, nb.build());
+  }
 
     /**
      * Called the first time a menu is needed.
@@ -546,4 +586,39 @@ public class XServerActivity extends Activity {
         }
     }
 
+  private void toggleNavigationBar() {
+    if (isTogglingNavBar) {
+      return;
+    }
+
+    isTogglingNavBar = true;
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      View decorView = getWindow().getDecorView(); // Get root view
+      if (!isNavBarHidden) {
+        decorView.setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        isNavBarHidden = true;
+      } else {
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        isNavBarHidden = false;
+      }
+    }
+
+    // Reset the flag after a delay
+    new Handler()
+        .postDelayed(
+            new Runnable() {
+              @Override
+              public void run() {
+                isTogglingNavBar = false;
+              }
+            },
+            500); // 500ms delay
+  }
 }

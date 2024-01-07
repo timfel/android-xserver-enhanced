@@ -5,12 +5,17 @@
 This fork contain these changes:
  - X server doesn't restart on screen resolution changes - fixes #35 and #25
  - Workaround fix for: `Unsupported screen format: depth: 32, bits_per_pixel: 24, red_mask: ff0000, blue_mask: ff` - fixes (almost) #30
+ - Gestures support:
+   - Zooming with fingers - !!! Some problems with handling events (idk whyyy)
+   - Three finger tap - hide/show navigation panel
+   - Four finger tap - Restore zoom
 
 WIP:
- - Gestures support (like three finger tap for hide navigation panel, zooming with fingers) - Almost done! Some minor problem with handling events
+ - XKB
+ - Properly fix for #30
 
 TODO:
- - XKB, MIT SHM, SYNC, GLX extensions support - should fix #17 and #27
+ - MIT SHM, SYNC, GLX extensions support - should fix #17 and #27
 
 This project implements an X11 server for use with Android devices, written in Java. The X11 server runs within an Android View subclass, allowing it to be embedded in other applications. This implementation has proven to be very useful for porting C++ [FLTK](https://www.fltk.org/) applications to Android.
 

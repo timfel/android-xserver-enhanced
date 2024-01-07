@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ActionMode;
 import android.view.Menu;
+import android.view.ScaleGestureDetector;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.view.inputmethod.InputConnection;
@@ -48,7 +49,63 @@ import java.lang.Math;
  */
 public class ScreenView extends View {
     private static final String LOG_TAG = "ScreenView";
-   
+
+    public abstract class ScreenViewScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
+        public Boolean scaleInProgress = false;
+        private final ScreenView _screenView;
+
+        public ScreenViewScaleGestureListener(ScreenView screenView) {
+            this._screenView = screenView;
+        }
+
+        public Boolean getScaleInProgress() {
+            return scaleInProgress;
+        }
+
+        public void setScaleInProgress(Boolean scaleInProgress) {
+            this.scaleInProgress = scaleInProgress;
+        }
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            float scaleFactor = detector.getScaleFactor();
+            this.scale(scaleFactor);
+            return true;
+        }
+
+        public void scale(float scaleFactor) {
+            scaleFactor = Math.max(0.01f, Math.min(scaleFactor, 10.0f));
+            this._screenView.setScaleX(scaleFactor);
+            this._screenView.setScaleY(scaleFactor);
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            setScaleInProgress(true);
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            setScaleInProgress(false);
+        }
+
+        public void resetZoom() {
+            _screenView.setScaleX(1.0f);
+            _screenView.setScaleY(1.0f);
+        }
+
+    }
+
+    static public abstract class ScreenViewOnTouchCallback {
+        public abstract boolean onTouch(View v, MotionEvent event);
+    }
+
+    private ScreenViewOnTouchCallback onTouchCallback;
+
+    private ScaleGestureDetector mScaleDetector;
+    public ScreenViewScaleGestureListener mScaleListener;
+
     private interface PendingEvent {
         public void run();
     }
@@ -254,6 +311,14 @@ public class ScreenView extends View {
         mPendingPointerEvents = new PendingEventQueue<PendingPointerEvent>();
         mPendingKeyboardEvents = new PendingEventQueue<PendingKeyboardEvent>();
 
+        mScaleListener = new ScreenView.ScreenViewScaleGestureListener(this) {
+            @Override
+            public void scale(float scaleFactor) {
+                super.scale(scaleFactor);
+            }
+        };
+        mScaleDetector = new ScaleGestureDetector(c, mScaleListener);
+
         // ---- Listeners for touch input ----
         setOnClickListener(new View.OnClickListener() {
             @Override
@@ -263,10 +328,15 @@ public class ScreenView extends View {
         });
 
         setOnTouchListener(new View.OnTouchListener() {
-            // TODO: do not handle clicks from three finger touches
-
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (onTouchCallback != null) {
+                    Log.d(LOG_TAG, "onTouchCallback is not null. Calling onTouchCallback");
+                    if (!onTouchCallback.onTouch(v, event)) {
+                        return false;
+                    }
+                }
+
                 Log.d(LOG_TAG, "onTouch: event: " + event.toString());
 
                 /*
@@ -490,6 +560,15 @@ public class ScreenView extends View {
             }
         });
         requestFocus();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mScaleDetector.onTouchEvent(event);
+        if (mScaleListener.scaleInProgress) {
+            return true;
+        }
+        return super.onTouchEvent(event);
     }
 
     /**
@@ -2019,5 +2098,14 @@ public class ScreenView extends View {
      */
     public Window getSharedClipboardWindow() {
         return _sharedClipboardWindow;
+    }
+
+    /**
+     * Sets the callback that will be invoked when a touch event is dispatched to this view.
+     *
+     * @param callback The callback to be invoked.
+     */
+    public void setOnTouchCallback(ScreenViewOnTouchCallback callback) {
+        this.onTouchCallback = callback;
     }
 }

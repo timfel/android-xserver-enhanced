@@ -20,7 +20,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -44,61 +43,11 @@ import java.util.Vector;
 public class ScreenView extends View {
     private static final String LOG_TAG = "ScreenView";
 
-    public abstract class ScreenViewScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
-        public Boolean scaleInProgress = false;
-        private final ScreenView _screenView;
-
-        public ScreenViewScaleGestureListener(ScreenView screenView) {
-            this._screenView = screenView;
-        }
-
-        public Boolean getScaleInProgress() {
-            return scaleInProgress;
-        }
-
-        public void setScaleInProgress(Boolean scaleInProgress) {
-            this.scaleInProgress = scaleInProgress;
-        }
-
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            float scaleFactor = detector.getScaleFactor();
-            this.scale(scaleFactor);
-            return true;
-        }
-
-        public void scale(float scaleFactor) {
-            scaleFactor = Math.max(0.01f, Math.min(scaleFactor, 10.0f));
-            this._screenView.setScaleX(scaleFactor);
-            this._screenView.setScaleY(scaleFactor);
-        }
-
-        @Override
-        public boolean onScaleBegin(ScaleGestureDetector detector) {
-            setScaleInProgress(true);
-            return true;
-        }
-
-        @Override
-        public void onScaleEnd(ScaleGestureDetector detector) {
-            setScaleInProgress(false);
-        }
-
-        public void resetZoom() {
-            _screenView.setScaleX(1.0f);
-            _screenView.setScaleY(1.0f);
-        }
-
-    }
-
     static public abstract class ScreenViewOnTouchCallback {
         public abstract boolean onTouch(View v, MotionEvent event);
     }
 
     private ScreenViewOnTouchCallback onTouchCallback;
-
-    private ScaleGestureDetector mScaleDetector;
-    public ScreenViewScaleGestureListener mScaleListener;
 
     private interface PendingEvent {
         public void run();
@@ -304,15 +253,6 @@ public class ScreenView extends View {
 
         mPendingPointerEvents = new PendingEventQueue<PendingPointerEvent>();
         mPendingKeyboardEvents = new PendingEventQueue<PendingKeyboardEvent>();
-
-        mScaleListener = new ScreenView.ScreenViewScaleGestureListener(this) {
-            @Override
-            public void scale(float scaleFactor) {
-                super.scale(scaleFactor);
-            }
-        };
-        mScaleDetector = new ScaleGestureDetector(c, mScaleListener);
-
         // ---- Listeners for touch input ----
         setOnClickListener(new View.OnClickListener() {
             @Override
@@ -554,16 +494,6 @@ public class ScreenView extends View {
             }
         });
         requestFocus();
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mScaleDetector.onTouchEvent(event);
-        if (mScaleListener.scaleInProgress) {
-            return true;
-        }
-        super.onTouchEvent(event);
-        return true;
     }
 
     /**

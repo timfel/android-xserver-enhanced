@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Vector;
 
+import android.os.AsyncTask;
 import au.com.darkside.xserver.Xext.Extensions;
 
 /**
@@ -120,13 +121,15 @@ public class Client extends Thread {
 
     /**
      * Run the communications thread.
+    
      */
-    public void run() {
-        try {
-            doComms();
-        } catch (IOException e) {
-        }
 
+    public void run() {
+                   try {
+                       doComms();
+                   } catch (IOException e) {
+                       e.printStackTrace();
+                   }
         synchronized (_xServer) {
             close();
         }
@@ -197,7 +200,7 @@ public class Client extends Thread {
         // Complete the setup.
         final byte[] vendor = _xServer.vendor.getBytes();
         int pad = -vendor.length & 3;
-        int extra = 26 + 2 * _xServer.getNumFormats() + (vendor.length + pad) / 4;
+        int length = 26 + 2 * _xServer.getNumFormats() + (vendor.length + pad) / 4;
         Keyboard kb = _xServer.getKeyboard();
 
         synchronized (_inputOutput) {
@@ -205,7 +208,7 @@ public class Client extends Thread {
             _inputOutput.writeByte((byte) 0);        // Unused.
             _inputOutput.writeShort(_xServer.ProtocolMajorVersion);
             _inputOutput.writeShort(_xServer.ProtocolMinorVersion);
-            _inputOutput.writeShort((short) extra);    // Length of data.
+            _inputOutput.writeShort((short) length);    // Length of data.
             _inputOutput.writeInt(_xServer.ReleaseNumber);    // Release number.
             _inputOutput.writeInt(_resourceIdBase);
             _inputOutput.writeInt(_resourceIdMask);
@@ -249,7 +252,7 @@ public class Client extends Thread {
             // Deal with server grabs.
             while (!_xServer.processingAllowed(this)) {
                 try {
-                    sleep(100);
+                    sleep(80);
                 } catch (InterruptedException e) {
                 }
             }

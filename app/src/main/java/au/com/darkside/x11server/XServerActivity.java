@@ -163,7 +163,7 @@ public class XServerActivity extends Activity {
 
                         if (event.getPointerCount() == 4) {
                             Log.d(LOG_TAG, "onTouch: Four finger touch detected. Reset zoom");
-                            _screenView.mScaleListener.resetZoom();
+                            // _screenView.mScaleListener.resetZoom();  // TODO:
                             return false;
                         } else if (event.getPointerCount() == 3) {
                             Log.d(LOG_TAG, "onTouch: Three finger touch detected. Toggle nav bar");

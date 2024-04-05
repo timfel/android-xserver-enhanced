@@ -2,6 +2,8 @@ package au.com.darkside.xserver.Xext;
 
 import java.io.IOException;
 
+import android.util.Log;
+
 import au.com.darkside.xserver.Client;
 import au.com.darkside.xserver.ErrorCode;
 import au.com.darkside.xserver.InputOutput;
@@ -14,7 +16,6 @@ import au.com.darkside.xserver.XServer;
  * @author mkwan
  */
 public class Extensions {
-    // What these bytes are fucking means?
     // xdpyinfo -queryExt | grep opcode
     public static final byte XGE = -128;
     public static final byte XTEST = -124;
@@ -80,12 +81,13 @@ public class Extensions {
                 XTest.processRequest(xServer, client, opcode, arg, bytesRemaining);
                 break;
             case XKEYBOARD:
-                //    XKeyboard.processRequest(xServer, client, opcode, arg, bytesRemaining);
-                //    break;
+                XKeyboard.processRequest(xServer, client, opcode, arg, bytesRemaining);
+                break;
             case Sync:
                 //    XSync.processRequest(xServer, client, opcode, arg, bytesRemaining);
                 //    break;
             default:
+                Log.d("Extensions", "Unknown extension opcode: " + opcode);
                 io.readSkip(bytesRemaining);    // Not implemented.
                 ErrorCode.write(client, ErrorCode.Implementation, opcode, 0);
                 break;

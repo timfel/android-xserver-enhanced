@@ -104,9 +104,10 @@ public class XServer {
         _extensions.put("BIG-REQUESTS", new Extension(Extensions.BigRequests, (byte) 0, (byte) 0));
         _extensions.put("SHAPE", new Extension(Extensions.Shape, XShape.EventBase, (byte) 0));
         //_extensions.put("SYNC", new Extension(Extensions.Sync, XSync.EventBase, XSync.ErrorBase));
-        _extensions.put("XKEYBOARD", new Extension(Extensions.XKEYBOARD, (byte) 0, (byte) 0));
+        // _extensions.put("XKEYBOARD", new Extension(Extensions.XKEYBOARD, (byte) 0, (byte) 0));
         _extensions.put("XTEST", new Extension(Extensions.XTEST, (byte) 0, (byte) 0));
 
+        _formats.add(new Format((byte) 24, (byte) 32, (byte) 0xff));
         _formats.add(new Format((byte) 32, (byte) 24, (byte) 8));
         _formats.add(new Format((byte) 24, (byte) 24, (byte) 8));
         /*
@@ -285,6 +286,10 @@ public class XServer {
      */
     public void ungrabServer(Client client) {
         if (_grabClient == client) _grabClient = null;
+    }
+
+    public Client getGrabClient() {
+        return _grabClient;
     }
 
     /**
@@ -714,6 +719,11 @@ public class XServer {
 
         if (mode == 0) _accessControlHosts.add(address);
         else _accessControlHosts.remove(address);
+    }
+
+
+    public Client getDefaultClient() {
+        return _clients.get(0);
     }
 
     /**

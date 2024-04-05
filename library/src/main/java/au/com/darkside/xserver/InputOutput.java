@@ -61,6 +61,11 @@ public class InputOutput {
      */
     public void readBytes(byte[] ba, int offset, int length) throws IOException {
         while (length > 0) {
+            if (_inStream.available() == 0) {
+                // Stream is closed, handle it
+                throw new IOException("Input stream closed");
+            }
+
             int n = _inStream.read(ba, offset, length);
 
             if (n < 0) {
@@ -203,11 +208,12 @@ public class InputOutput {
      * @throws IOException
      */
     public void readSkip(int n) throws IOException {
-        int avaiable = _inStream.available();
-        if (n > avaiable) // to avoid blocking
-            n = avaiable;
-        while (n > 0)
-            n -= _inStream.skip(n);
+        byte[] buffer = new byte[Math.min(n, _inStream.available())];
+        while (n > 0) {
+            int read = _inStream.read(buffer, 0, buffer.length);
+            if (read == -1) break;
+            n -= read;
+        }
     }
 
     /**

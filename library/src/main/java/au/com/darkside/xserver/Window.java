@@ -33,6 +33,7 @@ public class Window extends Resource {
     private Vector<Client> _shapeSelectInput;
     private Drawable _drawable;
     private Colormap _colormap;
+    private int _depth;
     private Cursor _cursor = null;
     private int[] _attributes;
     private int _borderWidth;
@@ -107,6 +108,7 @@ public class Window extends Resource {
         _parent = parent;
         _borderWidth = borderWidth;
         _colormap = _screen.getDefaultColormap();
+        _depth = _xServer.getRootVisual().getDepth();
         _inputOnly = inputOnly;
 
         if (isRoot) {
@@ -144,11 +146,11 @@ public class Window extends Resource {
             _attributes[AttrBackgroundPixel] = 0xffc0c0c0;
             _isMapped = true;
             _cursor = (Cursor) _xServer.getResource(2);    // X cursor.
-            _drawable = new Drawable(width, height, 32, null, _attributes[AttrBackgroundPixel]);
+            _drawable = new Drawable(width, height, _depth, null, _attributes[AttrBackgroundPixel]);
             _drawable.clear();
         } else {
             _attributes[AttrBackgroundPixel] = 0xff000000;
-            _drawable = new Drawable(width, height, 32, null, _attributes[AttrBackgroundPixel]);
+            _drawable = new Drawable(width, height, _depth, null, _attributes[AttrBackgroundPixel]);
         }
 
         _children = new Vector<Window>();

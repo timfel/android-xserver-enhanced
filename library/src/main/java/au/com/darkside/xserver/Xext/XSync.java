@@ -62,7 +62,7 @@ public class XSync {
                 }
                 break;
             case SYNC_LIST:
-                int n = _systemCounters.size();//number of counters
+                int n = _systemCounters.size(); //number of counters
                 int length = 0;
                 for (String key : _systemCounters.keySet()) {
                     int temp = (key.length() + 2) % 4;

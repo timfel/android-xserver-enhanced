@@ -4,7 +4,7 @@ WORKDIR=$(shell pwd)
 PROJNAME=au.com.darkside.x11server
 LIBNAME=au.com.darkside.xserver
 
-# PLATFORM=$(if $(PLATFORM),arm) # Possible platform: intel, arm, mips (?)
+PLATFORM=arm64-v8a # Possible platform: x86, x86_64, armeabi-v7a, arm64-v8a, mips, mips64
 
 # Version Info
 VER_CODE=31
@@ -12,11 +12,20 @@ VER_NAME=1.31
 MIN_SDK=21
 TARGET_SDK=29
 
+# Define potential SDK locations
+SDK_LOCATIONS += ~/Android/Sdk $(ANDROID_HOME) $(HOME)/Library/Android/sdk
+
+# Automatically detect the first existing SDK location
+ANDROID_SDK_ROOT ?= $(firstword $(foreach dir, $(SDK_LOCATIONS), $(wildcard $(dir)) ) )
+
+# Ensure the PATH includes the platform-tools directory
+export PATH := $(PATH):$(ANDROID_SDK_ROOT)/platform-tools
+
 ## Java/Android Compiler Settings (defaults are valid for debian buster)
 # Can be overridden by environment variables
 JAVA_HOME:=$(if $(JAVA_HOME),$(JAVA_HOME),/usr/lib/jvm/java-1.11.0-openjdk-amd64)
-ANDROID_SDK_ROOT:=$(if $(ANDROID_SDK_ROOT),$(ANDROID_SDK_ROOT),/usr/lib/android-sdk)
-ANDROID_BUILD_TOOLS_VERSION:=$(if $(ANDROID_BUILD_TOOLS_VERSION),$(ANDROID_BUILD_TOOLS_VERSION),debian)
+# ANDROID_SDK_ROOT:=$(if $(ANDROID_SDK_ROOT),$(ANDROID_SDK_ROOT),/usr/lib/android-sdk)
+ANDROID_BUILD_TOOLS_VERSION:=$(if $(ANDROID_BUILD_TOOLS_VERSION),$(ANDROID_BUILD_TOOLS_VERSION),28.0.0/)
 ANDROID_PLATORM_VERSION:=$(if $(ANDROID_PLATORM_VERSION),$(ANDROID_PLATORM_VERSION),28)
 
 ANDROID_PLATORM=android-$(ANDROID_PLATORM_VERSION)
@@ -39,6 +48,7 @@ JARSIGNER=$(JAVA_HOME)/bin/jarsigner
 ANDROID_SRC=$(WORKDIR)/app/src/main
 ANDROID_LIB=$(WORKDIR)/library/src/main
 ANDROID_SOURCES=$(shell find $(WORKDIR) -name *.java)
+# ANDROID_NATIVE_LIBS=$(shell cd $(ANDROID_SRC) && find ./jniLibs -wholename "./jniLibs/$(PLATFORM)/*.so")
 ANDROID_NATIVE_LIBS=$(shell cd $(ANDROID_SRC) && find ./jniLibs -name *.so)
 ANDROID_NATIVE_LIBS_AAPT_CMD=$(subst ./jniLibs,lib,$(addprefix && $(AAPT) add $(GENDIR_ANDROID)/$(PROJNAME).apk.unaligned ,$(ANDROID_NATIVE_LIBS)))
 
@@ -85,7 +95,7 @@ prepare_dirs:
 	cp -rf $(ANDROID_SRC)/jniLibs/* $(NATIVELIBDIR_ANDROID)
 
 generate_keystore:
-	keytool -genkey -v -keystore $(ANDROID_KEYSTORE_PATH)  -storepass $(ANDROID_KEYSTORE_PW) -alias $(ANDROID_KEYSTORE_NAME) -keypass $(ANDROID_KEYSTORE_PW) -keyalg RSA -keysize 2048 -validity 10000	
+	yes | keytool -genkey -v -keystore $(ANDROID_KEYSTORE_PATH)  -storepass $(ANDROID_KEYSTORE_PW) -alias $(ANDROID_KEYSTORE_NAME) -keypass $(ANDROID_KEYSTORE_PW) -keyalg RSA -keysize 2048 -validity 10000
 
 install:
 	adb install $(OUT_ANDROID)/$(PROJNAME).apk

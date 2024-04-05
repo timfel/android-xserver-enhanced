@@ -7,6 +7,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
+import android.util.Log;
 import java.io.IOException;
 
 
@@ -758,22 +759,33 @@ public class Drawable {
         int depth = io.readByte();
         int n, pad, rightPad;
 
+        // Log.d("processPutImage", "width: " + width + ", height: " + height + ", dstX: " + dstX + ", dstY: " + dstY
+        //         + ", leftPad: " + leftPad + ", depth: " + depth);
+
+        // Log.d("processPutImage", "_depth: " + _depth);
+
         io.readSkip(2);        // Unused.
         bytesRemaining -= 12;
 
         boolean badMatch = false;
 
         if (format == BITMAP_FORMAT) {
+            // Log.d("processPutImage", "BITMAP_FORMAT depth: " + depth);
             if (depth != 1) badMatch = true;
         } else if (format == XY_PIXMAP_FORMAT) {
+            // Log.d("processPutImage", "XY_PIXMAP_FORMAT depth: " + depth);
             if (depth != _depth) badMatch = true;
         } else if (format == Z_PIXMAP_FORMAT) {
+            // Log.d("processPutImage", "Z_PIXMAP_FORMAT depth: " + depth);
+            // Log.d("processPutImage", "Z_PIXMAP_FORMAT leftPad: " + leftPad);
             if (depth != _depth || leftPad != 0) badMatch = true;
         } else {    // Invalid format.
+            // Log.d("processPutImage", "Invalid format: " + format);
             badMatch = true;
         }
 
         if (badMatch) {
+            // Log.d("processPutImage", "Bad match depth: " + depth + " leftPad: " + leftPad);
             io.readSkip(bytesRemaining);
             ErrorCode.write(client, ErrorCode.Match, RequestCode.PutImage, 0);
             return false;
@@ -784,6 +796,8 @@ public class Drawable {
         if (format == Z_PIXMAP_FORMAT) {
             rightPad = 0;
             if (depth == 32) {
+                n = 3 * width * height;
+            } else if (depth == 24) {
                 n = 3 * width * height;
             } else {
                 n = (width * height + 7) / 8;
@@ -799,6 +813,7 @@ public class Drawable {
         pad = -n & 3;
 
         if (bytesRemaining != n + pad) {
+            // Log.d("processPutImage", "bytesRemaining: " + bytesRemaining + " n: " + n + " pad: " + pad);
             io.readSkip(bytesRemaining);
             ErrorCode.write(client, ErrorCode.Length, RequestCode.PutImage, 0);
             return false;
